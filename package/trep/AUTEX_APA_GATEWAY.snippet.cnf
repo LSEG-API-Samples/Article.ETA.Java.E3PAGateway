@@ -1,0 +1,140 @@
+*AUTEX_APA_GATEWAY*CacheResiliency*hostList :
+*AUTEX_APA_GATEWAY*CacheResiliency*port : 9101
+*AUTEX_APA_GATEWAY*HSAutoFailback*decisionTime : 60
+*AUTEX_APA_GATEWAY*HSAutoFailback*enable : True
+*AUTEX_APA_GATEWAY*HSAutoFailback*network : mdhnet;238.3.3.3|9093|
+*AUTEX_APA_GATEWAY*ageUnwatchedItemTime : 0
+*AUTEX_APA_GATEWAY*augRemapRefreshUpdateType :
+*AUTEX_APA_GATEWAY*augRemapUpdateType :
+*AUTEX_APA_GATEWAY*blockedItemsFile :
+*AUTEX_APA_GATEWAY*cacheLocation : srcApp
+*AUTEX_APA_GATEWAY*cacheType : sinkDriven
+*AUTEX_APA_GATEWAY*clearNotInCacheImageWhenActive : False
+*AUTEX_APA_GATEWAY*clearScreenOnComFault : No
+*AUTEX_APA_GATEWAY*clearScreenOnPreemption : No
+*AUTEX_APA_GATEWAY*columnsInPage : 80
+*AUTEX_APA_GATEWAY*contribDataFileDirectory : .
+*AUTEX_APA_GATEWAY*contribExchangeFieldList :
+*AUTEX_APA_GATEWAY*contribFieldList :
+*AUTEX_APA_GATEWAY*contribInsertRTL : False
+*AUTEX_APA_GATEWAY*contribMaxUpdateRate : 5000
+*AUTEX_APA_GATEWAY*contribMinUpdateRate : 500
+*AUTEX_APA_GATEWAY*contribNegativeTemplateIdList : 80, 85
+*AUTEX_APA_GATEWAY*contribPositiveTemplateIdList :
+*AUTEX_APA_GATEWAY*convertMfeedDataToRWF : False
+*AUTEX_APA_GATEWAY*convertNotInCacheToImage : False
+*AUTEX_APA_GATEWAY*convertToIDNStyle : False
+*AUTEX_APA_GATEWAY*convertVerifyNoSyncToCorrection : True
+*AUTEX_APA_GATEWAY*createAccessLocks : False
+*AUTEX_APA_GATEWAY*createDacsServiceLock : False
+*AUTEX_APA_GATEWAY*createInsertLocks : False
+*AUTEX_APA_GATEWAY*createLockForPEZero : False
+*AUTEX_APA_GATEWAY*dataType : 6
+*AUTEX_APA_GATEWAY*dataTypeForMFBinaryFID : MF_Binary
+*AUTEX_APA_GATEWAY*discourageRequestsOnOutage : False
+*AUTEX_APA_GATEWAY*dismountOnOutage : False
+*AUTEX_APA_GATEWAY*domainsCached : ALL
+*AUTEX_APA_GATEWAY*domainsNotCached :
+*AUTEX_APA_GATEWAY*dumpAccessLockFileName :
+*AUTEX_APA_GATEWAY*enableOverrideInsertRecordResp : False
+*AUTEX_APA_GATEWAY*enablePublisherAugmentation : False
+*AUTEX_APA_GATEWAY*expandedEnumFields : True
+*AUTEX_APA_GATEWAY*forwardItemPriorityToSrcApp : False
+*AUTEX_APA_GATEWAY*forwardServerMode : False
+*AUTEX_APA_GATEWAY*headlinePermissioning : True
+*AUTEX_APA_GATEWAY*hotStandby*heartbeat : 1
+*AUTEX_APA_GATEWAY*hotStandby*learnTime : 10
+*AUTEX_APA_GATEWAY*hotStandby*maxUpdateRate : 5000
+*AUTEX_APA_GATEWAY*hotStandby*retryTime : 180
+*AUTEX_APA_GATEWAY*hotStandby*standbyForwardInsertToSrcApp : True
+*AUTEX_APA_GATEWAY*hotStandby*temporalDifference : 1
+*AUTEX_APA_GATEWAY*hotStandby*timeout : 3
+*AUTEX_APA_GATEWAY*includeUnwatchedItemsInLoad : False
+*AUTEX_APA_GATEWAY*insertAction : lowest
+*AUTEX_APA_GATEWAY*insertFlushInterval : 20
+*AUTEX_APA_GATEWAY*insertTimeout : 30
+*AUTEX_APA_GATEWAY*itemPriorityFile :
+*AUTEX_APA_GATEWAY*lockedItemThreshold : 5
+*AUTEX_APA_GATEWAY*logNonRecoverableOpens : False
+*AUTEX_APA_GATEWAY*maxLoadLevel : 65535
+*AUTEX_APA_GATEWAY*maxOperDuringFailover : 20
+*AUTEX_APA_GATEWAY*maxPendingOutInsert : 100000
+*AUTEX_APA_GATEWAY*newsNameList : N2_UBMS NFCP_UBMS
+*AUTEX_APA_GATEWAY*nonCachingItemFile :
+*AUTEX_APA_GATEWAY*nonCachingItemList :
+*AUTEX_APA_GATEWAY*nonRecoverablePolling : False
+*AUTEX_APA_GATEWAY*normalRetryTime : 120
+*AUTEX_APA_GATEWAY*normalizedLoadLevelThresholdForConcurrentRequests : 95
+*AUTEX_APA_GATEWAY*notInCacheData : DSPLY_NAME, Not In Cache
+*AUTEX_APA_GATEWAY*notInCacheFLN :
+*AUTEX_APA_GATEWAY*openWindowTimeWindow : 15
+*AUTEX_APA_GATEWAY*overrideDoNotConflate : False
+*AUTEX_APA_GATEWAY*overrideLockServiceId : True
+*AUTEX_APA_GATEWAY*overrideProviderQos : False
+*AUTEX_APA_GATEWAY*persistentRestoreAsStale : True
+*AUTEX_APA_GATEWAY*pollCache : True
+*AUTEX_APA_GATEWAY*preemption : srcApp
+*AUTEX_APA_GATEWAY*preemptionRecoveryThreshold : 0
+*AUTEX_APA_GATEWAY*preemptionRetryTime : 180
+*AUTEX_APA_GATEWAY*priorityAwareMarketfeed : False
+*AUTEX_APA_GATEWAY*publisherAllowedFieldList :
+*AUTEX_APA_GATEWAY*qosRate : TICK_BY_TICK
+*AUTEX_APA_GATEWAY*qosRateInfo : 0
+*AUTEX_APA_GATEWAY*qosTimeInfo : 0
+*AUTEX_APA_GATEWAY*qosTimeliness : REALTIME
+*AUTEX_APA_GATEWAY*recoverItemsOnClose : False
+*AUTEX_APA_GATEWAY*removeUnwatchedItems : False
+*AUTEX_APA_GATEWAY*retryLimit : 0
+*AUTEX_APA_GATEWAY*retryTimer : 60
+*AUTEX_APA_GATEWAY*rowsInPage : 25
+*AUTEX_APA_GATEWAY*rrmpFlushInterval : 20
+*AUTEX_APA_GATEWAY*seqNumFollowsMarketfeedRules : False
+*AUTEX_APA_GATEWAY*serviceCacheDumpFile :
+*AUTEX_APA_GATEWAY*serviceDumpFile :
+*AUTEX_APA_GATEWAY*serviceId : 75
+*AUTEX_APA_GATEWAY*serviceQueueTimerMilliseconds : 10
+*AUTEX_APA_GATEWAY*serviceRestartTime : 600
+*AUTEX_APA_GATEWAY*staleRecoveryRetryTime : 600
+*AUTEX_APA_GATEWAY*supportsOutofBandSnapshots : False
+*AUTEX_APA_GATEWAY*supportsSnapshots : False
+*AUTEX_APA_GATEWAY*useP2PForHotStandbyHeartbeat : False
+*AUTEX_APA_GATEWAY*validateMfeedToRWFConvForPosts : False
+*adh*AUTEX_APA_GATEWAY*enableVisiblePublisherId : False
+*adh*AUTEX_APA_GATEWAY*filterField : 259
+*adh*AUTEX_APA_GATEWAY*filterFieldValues :
+*adh*AUTEX_APA_GATEWAY*vpiUserAddrFID : 0
+*adh*AUTEX_APA_GATEWAY*vpiUserIdFID : 0
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*Broadcast*groupList : 2
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*Interactive*groupList : 1, 3, 4, 6
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*appServiceName : AUTEX_APA_GATEWAY
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*commLinks : Interactive, Broadcast
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*dacsAttributes :
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*datastreamMonitor*interruptionDetection : False
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*datastreamMonitor*interruptionDuration : 4
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*datastreamMonitor*trafficWindow : 10
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*enableVPIDownstream : False
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*enableVPIUpstream : False
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*initialOpenLimit : 256
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*lockedDumpFile :
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*maxCache : 25000
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*serverCost : 0
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*serverId : 273
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*serverPartitionList :
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*serverPartitionNegationList :
+hostname*adh*apagatewayroute.route*AUTEX_APA_GATEWAY*updateRateThreshold : 200
+hostname*adh*apagatewayroute.route*serviceList : AUTEX_APA_GATEWAY
+hostname*adh*apagatewayroute.route*allowSuspectData : False
+hostname*adh*apagatewayroute.route*applicationId : 256
+hostname*adh*apagatewayroute.route*compressionType : 0
+hostname*adh*apagatewayroute.route*hostList : 127.0.0.1
+hostname*adh*apagatewayroute.route*numIpcInputBuffers : 10
+hostname*adh*apagatewayroute.route*numIpcOutputBuffers : 100
+hostname*adh*apagatewayroute.route*pingInterval : 2
+hostname*adh*apagatewayroute.route*port : 14403
+hostname*adh*apagatewayroute.route*protocol : rssl
+hostname*adh*apagatewayroute.route*recoveryInterval : 10
+hostname*adh*apagatewayroute.route*routeEnabled : True
+hostname*adh*apagatewayroute.route*singleOpen : False
+hostname*adh*apagatewayroute.route*tcpNoDelay : False
+hostname*adh*apagatewayroute.route*userName : rmds
+hostname*adh*routeList : apagatewayroute

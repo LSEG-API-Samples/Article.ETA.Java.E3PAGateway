@@ -1,0 +1,278 @@
+
+
+ext {
+    slf4jVersion = '1.7.13'
+    messageTrackVersion = '3.0.303'
+    powerMockVersion = '1.6.4'
+    quickfixVersion = '1.6.3'
+    etaVersion = '3.0.2.L1.all'
+    frameworkVersion = '1.1.1-RC5'
+    sysoutOverSlf4jVersion='1.0.2'
+    gsonVersion='1.7.2'
+    guavaVersion='21.0'
+    logbackVersion='1.2.3'
+    jsonVersion='20090211'
+    commonsVersion='1.2'
+    jodaVersion='2.3'
+}
+
+
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs './libs'
+    }
+}
+
+defaultTasks 'clean', 'build', 'makeDist'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        flatDir {
+            dirs './libs'
+        }
+    }
+
+
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+        classpath 'com.kenshoo:gradle-fpm:0.5'
+    }
+}
+
+
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'fpm-packaging'
+    apply plugin: 'com.jfrog.artifactory'
+
+    group 'com.thomsonreuters'
+    version '1.0.0-SNAPSHOT'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+
+    if (project.version == 'unspecified') {
+        project.version = versionBase
+        project.ext["implBuild"] = "Dev"
+
+    } else {
+        // pull out build number in manifest assume major.minor.buildNbr
+        def versionParts = project.version.tokenize('.')
+        project.ext["implBuild"] = versionParts[versionParts.size() - 1]
+    }
+
+
+
+    if (!project.hasProperty("profile")) {
+        ext.profile = 'default'
+    }
+    if (!project.hasProperty("instanceId")) {
+        ext.instanceId = 'DEFAULT'
+    }
+}
+
+artifactory {
+
+    sourceSets {
+        main {
+            java {
+                srcDir 'src/main/java'
+            }
+            resources {
+                srcDir 'src/main/resources'
+            }
+        }
+        test {
+            java {
+                srcDir 'src/test/java'
+            }
+            resources {
+                srcDir 'src/test/resources'
+            }
+        }
+    }
+
+    configurations {
+        tests
+    }
+
+    task testJar(type: Jar, dependsOn: testClasses) {
+        baseName = "test-${project.archivesBaseName}"
+        from sourceSets.test.output
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.java, sourceSets.main.resources
+    }
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    jar {
+        dependsOn sourcesJar
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+        tests testJar
+    }
+
+
+    dependencies {
+        compile (group: 'com.thomsonreuters.upa', name: 'fdm', version: frameworkVersion) {
+            exclude group: 'com.squareup.retrofit2'
+            exclude group: 'com.squareup.okhttp3'
+            exclude group: 'org.apache.geronimo.specs'
+            exclude group: 'org.jetbrains'
+            exclude group: 'javax'
+            exclude group: 'com.tibco'
+        }
+        compile (group: 'com.thomsonreuters.upa', name: 'framework', version: frameworkVersion) {
+            exclude group: 'com.squareup.retrofit2'
+            exclude group: 'com.squareup.okhttp3'
+            exclude group: 'org.apache.geronimo.specs'
+            exclude group: 'org.jetbrains'
+            exclude group: 'javax'
+            exclude group: 'com.tibco'
+        }
+
+        compile (group: 'org.quickfixj', name: 'quickfixj-all', version: quickfixVersion) {
+            exclude group: 'org.apache.maven'
+        }
+
+        compile group: 'ch.qos.logback', name: 'logback-classic', version: logbackVersion
+        compile group: 'uk.org.lidalia', name: 'sysout-over-slf4j', version: sysoutOverSlf4jVersion
+        compile group: 'com.google.code.gson', name: 'gson', version: gsonVersion
+        compile group: 'com.google.guava', name: 'guava', version: guavaVersion
+        compile group: 'org.json', name: 'json', version: jsonVersion
+        compile group: 'commons-cli', name: 'commons-cli', version: commonsVersion
+        compile group: 'com.thomsonreuters', name: 'eta', version: etaVersion
+        compile group: 'com.thomsonreuters', name: 'etaValueAdd', version: etaVersion
+
+        testCompile group: 'org.easymock', name: 'easymock', version: '3.3.1'
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+        testCompile group: 'org.glassfish', name: 'javax.json', version: '1.0.4'
+        testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '1.3'
+        testCompile group: 'org.powermock', name: 'powermock-api-easymock', version: powerMockVersion
+        testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: powerMockVersion
+        testCompile group: 'org.powermock', name: 'powermock-module-junit4-rule-agent', version: powerMockVersion
+        testCompile group: 'joda-time', name: 'joda-time', version: jodaVersion
+    }
+}
+
+jar {
+    baseName = componentName
+    manifest {
+        attributes 'Implementation-Title': 'APAGateway', 'Implementation-Version': "${version}-${buildNumber}"
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            exclude '*'
+        }
+    }
+}
+
+clean.doFirst {
+    delete 'target'
+}
+
+
+
+
+configurations {
+    compile {
+        description = 'compile classpath'
+        transitive = true
+    }
+    runtime {
+        extendsFrom compile
+    }
+}
+
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+}
+
+task cleanDeps(dependsOn: build, type: Delete) {
+    delete rootProject.rootDir.getAbsolutePath() + "/package/app/APAGateway/libs/"
+}
+
+
+task copyDeps(dependsOn: cleanDeps, type: Copy) {
+    from(configurations.compile) {
+        include "*.jar"
+    }
+    from('build/libs') {
+        exclude "*-sources.jar"
+    }
+    from('libs') {
+        include "*.jar"
+    }
+    into rootProject.rootDir.getAbsolutePath() + "/package/app/APAGateway/libs"
+}
+
+task copyOMMToClient(dependsOn: copyDeps, type: Copy) {
+    from rootProject.rootDir.getAbsolutePath() + "/package/etc/APAGateway/omm"
+    into rootProject.rootDir.getAbsolutePath() + "/package/client/omm"
+}
+
+task copyScripts(dependsOn: copyOMMToClient, type: Copy) {
+    from (rootProject.rootDir.getAbsolutePath() + "/scripts") {
+        include "gateway.sh"
+        include "utils.sh"
+    }
+    into rootProject.rootDir.getAbsolutePath() + "/package"
+}
+
+task copyRules(dependsOn: copyScripts, type: Copy) {
+    from (rootProject.rootDir.getAbsolutePath() + "/clienthome/rules") {
+        include "rules.json"
+    }
+    into rootProject.rootDir.getAbsolutePath() + "/package/rules"
+}
+
+task copyJarToDist(dependsOn: copyRules, type: Copy) {
+    from jar
+    into rootProject.rootDir.getAbsolutePath() + "/package/app/APAGateway/libs"
+}
+
+copyDeps {}.finalizedBy copyJarToDist
+
+task makeDist(dependsOn: copyJarToDist, type: Tar) {
+    with copySpec {
+        from (rootProject.rootDir.getAbsolutePath()) {
+            fileMode=0744
+            include('/package/app/APAGateway/config/**')
+            include('/package/app/APAGateway/libs/**')
+            include('/package/app/APAGateway/trep/**')
+            include('/package/client/omm/**')
+        }
+        from (rootProject.rootDir.getAbsolutePath()) {
+            fileMode=0755
+            include('/package/app/APAGateway/bin/**')
+            include('/package/gateway.sh')
+            include('/package/utils.sh')
+            include('/package/rules/rules.json')
+        }
+    }
+    archiveName = "apagateway_dist.tar.gz"
+    destinationDir(rootProject.rootDir)
+    compression = Compression.GZIP
+}
+
+

@@ -1,0 +1,337 @@
+	*********************************************************************
+	*				Copyright (C) 2012 Thomson Reuters,					*
+	*																	*
+	*	All rights reserved. Duplication or distribution prohibited.	*
+	*********************************************************************
+
+    ***************************************************************************
+                  Common Server Parameters
+    ***************************************************************************
+
+
+!******************************************************************************
+! The following parameters are applicable to ssl 3.X, 4.0 & 4.5 source servers
+! of both sink-driven and source-driven cache type.
+!******************************************************************************
+
+@B@SN@N@N@@AUTOMATICALLY ASSIGNED@ "${node}"*adh*"${inst}".route*"${svc}"*serverId : XX
+#help
+
+     Assignment of "serverId's" to source servers:  { 255 - 65535 }
+     The configuration utilities assign a unique value from the
+     specified range. Each TREP Server must have a unique Id.
+
+     Default value: NONE - AUTOMATICALLY ASSIGNED
+#end
+!******************************************************************************
+! The following parameters are only applicable to ssl 4.5 source servers
+! of both sink-driven and source-driven cache type.
+!******************************************************************************
+
+@A@SN@S@N@@DACS ATTRIBUTES@ "${node}"*adh*"${inst}".route*"${svc}"*dacsAttributes :
+#help
+
+     dacsAttributes:
+
+     This parameter is used to specify the list of application
+     attributes to override the application attributes portion of the
+     permissioning information supplied on the sslSnkMount. See also
+     userName config parameter for the adh/adh.
+
+     Note: This parameter is needed only if application is permissioned 
+           via DACS.
+
+     Default value: NONE - OPTIONAL
+#end
+
+
+@A@SN@S@N@0@SERVER COST@ "${node}"*adh*"${inst}".route*"${svc}"*serverCost : 0
+
+#help
+
+     serverCost: { 0 - 3 }
+
+     This parameter allows to assign a cost value to a server.
+     This value is used by the sink for Asymmetrical Load Balancing.
+     Supported values are 0 through 3.
+
+     Default value: 0 - OPTIONAL
+#end
+
+@R@SN@S@N@@MAX CACHE@ "${node}"*adh*"${inst}".route*"${svc}"*maxCache : 25000
+#help
+
+     maxCache:
+
+     This parameter allows to override/lower the maximum cache size
+     supported by a source application on TREP. If no value is specified,
+     then the application specified open limit will be used by the Source
+     Distributor/ADH.
+
+     Note: This parameter must be specified, if it is not provided
+           programmatically by the source application.
+
+     Default value: NONE - OPTIONAL
+#end
+
+
+@A@SN@N@N@256@OPEN LIMIT@ "${node}"*adh*"${inst}".route*"${svc}"*initialOpenLimit : 256
+#help
+
+    initialOpenLimit: { 1 - N }
+
+    The initialOpenLimit parameter sets the number of image requests that can
+    be outstanding to the source application ("open window").
+
+    Default value: 256
+#end
+
+
+@B@SN@S@N@@APPLICATION SERVICE NAME@ "${node}"*adh*"${inst}".route*"${svc}"*appServiceName : "${svc}"
+#help
+
+    appServiceName:
+
+    The appServiceName parameter specifies the service name as published
+    by the source application.  It is completely independent of the
+    name by which this service is published on the TREP backbone.
+    The service name published by the Source Distributor/ADH on the
+    on the TREP backbone is the service name used to configure
+    this file (tconfig "-s" parameter), and is the default value for
+    appServiceName.  In the case of an RDF, the appServiceName is
+    almost always "IDN_RDF".
+
+    Note: This parameter must exactly match the published service name.
+
+    Default value: ${svc}
+#end
+
+
+@A@SN@S@N@@LOCKED ITEMS DUMP FILE@ "${node}"*adh*"${inst}".route*"${svc}"*lockedDumpFile :
+#help
+
+    lockedDumpFile: { path and file name }
+
+    Specified the location and name for dump file of locked items.
+    This parameter is used when "dump" variable in adhmon
+    (Server Statistics -> Data Streams) is changed to "True".
+
+    Default value: ./<serviceName>_locked_items.dump
+#end
+
+@A@SN@S@N@@SERVER PARTITIONS@ "${node}"*adh*"${inst}".route*"${svc}"*serverPartitionList :
+#help
+
+    serverPartitionList:
+
+    Specifies a comma delimited list of regular expressions that denote
+    the item names that this server supports.  This information is advertised
+    to all p2ps and RTIC components on the RRMP hub so that they only direct
+    requests to servers that support a given item name. For example if this
+    server has a value of ^[A-M].* in its serverPartitionList. An RTIC or p2ps
+    will only attempt to send a request to this server if the item name begins
+    with A through M.
+
+    Note: This parameter is used only if the load is partitioned across 
+          multiple servers based on item name. 
+
+    Default value: None
+#end
+
+
+@A@SN@S@N@@SERVER PARTITION NEGATION LIST@ "${node}"*adh*"${inst}".route*"${svc}"*serverPartitionNegationList :
+#help
+
+    serverPartitionNegationList:
+
+    Specifies a comma delimited list of regular expressions that denote
+    the item names that this server does not support. This information is 
+    advertised to all p2ps and RTIC components on the RRMP hub so that they 
+    only direct requests to servers that does not support a given item name. 
+    For example if this server has a value of ^[A-M].* in its 
+    serverPartitionNegationList. An RTIC or p2ps will only attempt to send 
+    a request to this server if the item name does not begin with A through M.
+
+    Note: This parameter is used only if the load is partitioned across 
+          multiple servers based on item name. 
+
+    Default value: None
+#end
+
+
+@A@MN@S@LTrue,False@False@ENABLE VPI UPSTREAM@ "${node}"*adh*"${inst}".route*"${svc}"*enableVPIUpstream: False
+#help
+
+    enableVPIUpstream:
+
+	Part of the Visible Publisher Identifier (VPI) feature, the enableVPIUpstream
+	parameter will add the unique user information fields to the payload of a message
+	to be sent to upstream sources such as a publisher.  When disabled, the message
+	is not modified to contain user information from post or insert messages.  This
+	helps protect publishers which may not know the corresponding user information
+	FIDs or prevent broadcast of the FIDs to a wider network.  NOTE: if the 
+	'enableVPIUpstream' and 'enableVPIDownstream' variables are both 'False', 
+	the VPI feature will be disabled.
+
+    Default value: False
+#end
+
+@A@MN@S@LTrue,False@True@ENABLE VPI DOWNSTREAM@ "${node}"*adh*"${inst}".route*"${svc}"*enableVPIDownstream: False
+#help
+
+    enableVPIDownstream:
+
+	Part of the Visible Publisher Identifier (VPI) feature, the enableVPIDownstream
+	parameter will add the unique user information fields to the payload of a message
+	to be sent to downstream sources such as ADH cache or client applications.  
+	When disabled, the message is not modified to contain user information from post 
+	or insert messages.  This prevents the ADH cache from containing the 
+	user information FIDs and downstream clients from receiving the user information
+	FIDs.  NOTE: if the 'enableVPIUpstream' and 'enableVPIDownstream' variables are
+	both 'False', the VPI feature will be disabled.
+
+    Default value: False
+#end
+
+!******************************************************************************
+! Communication link support parameters
+!
+! IMPORTANT:
+!
+! Unless your src application implements Communication Link feature, REMOVE all 
+! COMM LINKS parameters.
+!******************************************************************************
+@A@SN@S@N@@COMM LINKS@ "${node}"*adh*"${inst}".route*"${svc}"*commLinks : Interactive, Broadcast
+#help
+
+    commLinks:
+
+    This parameter is a comma separated list of the communication links to be
+    monitored. They are used for link-based source mirroring switchover logic.
+    Each link needs to be further configured for its groupList. The link names
+    used for groupList scoping must match the names defined in the list.
+
+    The links are prioritized in the order that they are defined in the list.
+    The highest priority link will be the first link defined in the list.
+
+    Links must be defined in the same order between source-mirrored pairs
+    of Source Distributors/ADHs.
+
+    Default value: Interactive, Broadcast
+#end
+
+
+@A@SN@S@N@@INTERACTIVE LINK GROUP LIST@ "${node}"*adh*"${inst}".route*"${svc}"*Interactive*groupList : 1, 3, 4, 6
+#help
+
+    Interactive*groupList:
+
+    This parameter defines the list of groups to be monitored for the 
+    Interactive link. The link status is calculated based on group status of 
+    each group. The link is considered good if all groups are OK or unknown, 
+    whereas the link is considered bad if at least one group is stale or 
+    recoverable.
+
+    Default value: 1, 3, 4, 6
+#end
+
+
+@A@SN@S@N@@BROADCAST LINK GROUP LIST@ "${node}"*adh*"${inst}".route*"${svc}"*Broadcast*groupList : 2
+#help
+
+    Broadcast*groupList:
+
+    This parameter defines the list of groups to be monitored for the Broadcast
+    link. The link status is calculated based on group status of each group.
+    The link is considered good if all groups are OK or unknown, whereas the 
+    link is considered bad if at least one group is stale or recoverable.
+
+    Default value: 2
+#end
+
+
+!*****************************************************************************
+! Datafeed interruption detection params
+!
+! IMPORTANT:
+!
+! Unless your src application implements Source Mirroring feature, REMOVE all 
+! Datafeed Interruption Detection parameters.
+!
+!*****************************************************************************
+
+@A@SN@S@LTrue,False@False@DATAFEED FAILURE DETECTION ENABLE@ "${node}"*adh*"${inst}".route*"${svc}"*datastreamMonitor*interruptionDetection : False
+#help
+!
+!    This parameter controls whether the datafeed failure detection
+!    may occur. When enabled, source distributor monitors the update rate 
+!    pattern and changes. It assumes a communication fault has occurred 
+!    if the number of updates drops suddenly to zero from a level above
+!    updateRateThreshold, a configuration variable default to 200 updates
+!    per second, and stays at zero for longer than interruptionDuration.
+!    The source distributor will re-starts the server once it determines
+!    the feed has been interrupted.
+!
+!    This feature is intended for use with source applications that
+!    take a long time (greater than ten seconds, or so) to report a
+!    communications fault (e.g. the RDF).
+!    The following parameters define the required disruption in the
+!    update stream:
+!      interruptionDuration
+!      trafficWindow       
+!      updateRateThreshold
+#end
+!
+!
+@A@SN@N@N@4@DATAFEED FAILURE DETECTION INTERRUPTION TIME@ "${node}"*adh*"${inst}".route*"${svc}"*datastreamMonitor*interruptionDuration : 4
+#help
+!   
+!   This parameter is used for datafeed failure detection.
+!   This is the minimum amount of time (in seconds) that the update
+!   rate must stay at zero before the source distributor may declare
+!   a feed failure.
+!
+!   Default value : 4
+!
+#end
+!
+!
+@A@SN@N@N@10@DATAFEED FAILURE DETECTION WINDOW@ "${node}"*adh*"${inst}".route*"${svc}"*datastreamMonitor*trafficWindow : 10
+#help
+!
+!    This parameter is used for datafeed failure detection.
+!    The source distributor calculates update rate every second, and
+!    keeps track of these rate for a period of time defined by
+!    datastreamMonitor*trafficWindow, in order to monitor update
+!    rate pattern and changes.
+!
+!    Default value : 10
+!
+#end
+!
+!
+@A@SN@N@N@200@DATAFEED FAILURE DETECTION MINIMUM UPDATE RATE@ "${node}"*adh*"${inst}".route*"${svc}"*updateRateThreshold : 200
+#help
+!
+!    This parameter is used for datafeed failure detection.
+!    The number defines number of updates per second.
+!    It prevents false failure detection by turning off the 
+!    detection process if average update rates fall below 
+!    updateRateThreshold in trafficWindow.
+!    Feed failure detection is enabled again when update rate
+!    picks up to above updateRateThreshold per second.
+!
+!     Default value : 200
+!
+#end
+
+
+!*****************************************************************************
+!   The following parameters are only applicable to ssl 4.5 source servers
+!   of source-driven cache type
+!*****************************************************************************
+
+    ***************************************************************************
+                  SSL Server Application parameters
+    ***************************************************************************
+

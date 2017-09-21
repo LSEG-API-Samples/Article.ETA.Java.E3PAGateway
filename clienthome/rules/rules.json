@@ -1,0 +1,205 @@
+{
+  "messageRules": [
+    {
+      "conditionList": {
+        "conditions": [
+          {
+            "conditionType": "AND",
+            "conditions": [
+              {
+                "conditionType": "PRESENT",
+                "tagId": 22
+              },
+              {
+                "conditionType": "PRESENT",
+                "tagId": 30
+              }
+            ]
+          }
+        ]
+      },
+      "matchActions": {
+        "actions": [
+          {
+            "actionType": "ADD",
+            "destTag": 35,
+            "tagValue": "i"
+          },
+          {
+            "actionType": "COMPLETED"
+          },
+          {
+            "actionType": "MOVE",
+            "srcTag": 8632,
+            "destTag": 117
+          },
+          {
+            "actionType": "REPEATINGGROUP",
+            "destTag": 296,
+            "actions": [
+              {
+                "actionType": "SERIALNUMBER",
+                "destTag": 302,
+                "seedNumber": "1000",
+                "prefix": "APA",
+                "path": "$RULESHOME",
+                "name": "BIDOUTER"
+              },
+              {
+                "actionType": "ADD",
+                "destTag": 304,
+                "tagValue": "1"
+
+              },
+              {
+                "actionType": "REPEATINGGROUP",
+                "destTag": 295,
+                "actions": [
+                  {
+                    "actionType": "SERIALNUMBER",
+                    "destTag": 299,
+                    "seedNumber": "1000",
+                    "prefix": "APA",
+                    "path": "$RULESHOME",
+                    "name": "BIDINNER"
+                  },
+                  {
+                    "actionType": "ITEMNAME",
+                    "destTag": 48,
+                    "tagValue": "=",
+                    "splitTag": "true"
+
+                  },
+                  {
+                    "actionType": "MOVE",
+                    "srcTag": 22,
+                    "destTag": 132
+                  },
+                  {
+                    "actionType": "ADD",
+                    "destTag": 22,
+                    "tagValue": "1"
+                  },
+                  {
+                    "actionType": "MOVE",
+                    "srcTag": 30,
+                    "destTag": 134
+                  },
+                  {
+                    "actionType": "TIMESTAMP",
+                    "dateTag": 16,
+                    "timeTag": 18,
+                    "destTag": 60
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "conditionList": {
+        "conditions": [
+          {
+            "conditionType": "AND",
+            "conditions": [
+              {
+                "conditionType": "PRESENT",
+                "tagId": 25
+              },
+              {
+                "conditionType": "PRESENT",
+                "tagId": 31
+              }
+            ]
+          }
+        ]
+      },
+      "matchActions": {
+        "actions": [
+          {
+            "actionType": "ADD",
+            "destTag": 35,
+            "tagValue": "i"
+          },
+          {
+            "actionType": "MOVE",
+            "srcTag": 8632,
+            "destTag": 117
+          },
+          {
+            "actionType": "REPEATINGGROUP",
+            "destTag": 296,
+            "actions": [
+              {
+                "actionType": "SERIALNUMBER",
+                "destTag": 302,
+                "seedNumber": "1000",
+                "prefix": "APA",
+                "path": "$RULESHOME",
+                "name": "ASKOUTER"
+              },
+              {
+                "actionType": "ADD",
+                "destTag": 304,
+                "tagValue": "1"
+
+              },
+              {
+                "actionType": "REPEATINGGROUP",
+                "destTag": 295,
+                "actions": [
+                  {
+                    "actionType": "SERIALNUMBER",
+                    "destTag": 299,
+                    "seedNumber": "1000",
+                    "prefix": "APA",
+                    "path": "$RULESHOME",
+                    "name": "ASKINNER"
+                  },
+                  {
+                    "actionType": "ITEMNAME",
+                    "destTag": 48,
+                    "tagValue": "=",
+                    "splitTag": "true"
+
+                  },
+                  {
+                    "actionType": "ADD",
+                    "destTag": 22,
+                    "tagValue": "1"
+                  },
+                  {
+                    "actionType": "MOVE",
+                    "srcTag": 25,
+                    "destTag": 133
+                  },
+                  {
+                    "actionType": "MOVE",
+                    "srcTag": 31,
+                    "destTag": 135
+                  },
+                  {
+                    "actionType": "TIMESTAMP",
+                    "dateTag": 16,
+                    "timeTag": 18,
+                    "destTag": 60
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "notMatchActions": {
+        "actions": [
+          {
+            "actionType": "REJECT"
+          }
+        ]
+      }
+    }
+
+  ]
+}

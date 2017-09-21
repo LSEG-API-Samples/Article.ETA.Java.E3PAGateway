@@ -1,0 +1,2437 @@
+	*********************************************************************
+	*				Copyright (C) 2012 Thomson Reuters,					*
+	*																	*
+	*	All rights reserved. Duplication or distribution prohibited.	*
+	*********************************************************************
+
+    Filename: service_cpd_template
+
+    Five more letters are used by the awk script for this file:
+      G is for the P2PS
+      H is for the ADS
+      I is for the P2PS POP
+      J is for the ADS POP
+
+
+ OVERVIEW/ FILE CONTENTS
+
+
+    The Configuration Parameter Definition (.cpd) file contains
+    a description of a TREP component configuration parameters 
+    along with the keyword syntax for each parameter, and the 
+    encoded configuration specification string used by the TREP 
+    configuration utilities.
+
+    The .cpd file serves two roles:
+
+    It is a complete description of all available configuration variables 
+    for a each component. The TREP installer must read this file to 
+    find out what effect a parameter has on the component/system.
+
+    It is the input to the TREP Configuration utilities, which use
+    the encoded information to manage the complexity in configuring the
+    component.  For example, if a "basic" configuration is performed on
+    a component, the utilities will only show the installer parameters
+    that have been defined as Basic.
+
+    After the description of each parameter a line is inserted containing a
+    control string and the actual parameter definition.
+
+    @ @ @ @ @ @  *p2ps*keepAlive*keepAliveTimeout : 300
+
+    The control string is made up of six fields delimited by @.    
+
+    @class@scope@type@restriction@default@comment@  
+
+    Note: ${node}, ${inst}, and ${svc} are used as placeholders for node name, 
+          instance, and service name, respectively.
+
+
+ THE FOLLOWING TABLE DEFINES THE POSSIBLE ENCODING FOR EACH CONTROL FIELD.
+
+
+    Field          Values             Description
+    ------------|------------|-------------------------------------------------
+    class       |    B       | Basic     - available for basic install menu
+                |    A       | Advanced  - available only in advanced menu
+                |    D       | Debug     - available only via debug menu
+                |    R       | Read-only - passed unmodified to config file
+    ------------|------------|-------------------------------------------------
+    scope       |   G        | Global - global TREP parameter, cannot be 
+                |            | applied to a specific node.    
+                | MN  or MI  | Modifiable to Node - normally a global parameter,
+                |            | may be redefined to a specific Instance which may
+                |            | be a node, node.instance, or a userName.
+                | SN or  SI  | Specific to Node - must always be scoped to a 
+                |            | node, node.instance, or a userName.
+    ------------|------------|-------------------------------------------------
+    type        |   N        | Numeric - parameter is of type numeric. Used in 
+                |            |           validation checking.
+                |   S        | String - parameter is of type string. Used in 
+                |            |          validation checking.
+    ------------|------------|-------------------------------------------------
+    restriction |   N        | None
+                |   Rn,m     | Range - numeric range. Used in validation
+                |            |        checking by the configuration utilities.
+                |   Lx,y,z   | List - A comma separated list.Used in validation 
+                |            |        checking by the configuration utilities.
+    ---------------------------------------------------------------------------
+    default     |            | Product default value assigned by development.
+    ---------------------------------------------------------------------------
+    comment     |            | comment - a short mnemonic for the param. name.
+    ---------------------------------------------------------------------------
+
+
+ INSTRUCTIONS TO SOURCE SERVER DEVELOPERS
+
+
+    This file contains a description of the common source SERVICE attributes,
+    configuration parameters, along with the keyword syntax for each parameter.
+    TREP server developers are expected to use this file as a template for 
+    the creation of the service specific configuration parameter definition 
+    file which must be supplied with the SSL source server application.  
+
+    The service specific .cpd files should be named service_XXXX.cpd, where 
+    XXXX is the common service name of your application 
+    (e.g. service_tdpf.cpd).  
+
+    Copy this file into your service_xxxx.cpd file and then review all 
+    configuration values and assign suitable defaults for your product.
+    These appear as the Product Default value in the configuration utilities
+    menu. 
+
+    Some configuration variables have a default value, if that is not
+    correct for your server, change it. Other configuration variables
+    show the place holder _____ ; these must be filled in from the 
+    available choices. Variables whose value is shown as XX are assigned
+    automatically by the configuration utility and must not be changed.
+
+    SSL source applications can access the SERVICE attributes by using
+    either the C or C++ libraries, supplied in the SSL Developers Kit , to 
+    read the TREP configuration file.
+
+    SSL4.5+ source application developers should use SFC and RFA libraries
+    to listen (except for some RFA6.4+ cases) for incoming client connection
+    requests. SFC and RFA libraries don't support TREP configuration file
+    retrieval.
+
+ FORMAT AND SYNTAX NOTES:
+
+
+    A list of values enclosed in curly braces '{}' indicates that one
+    and only one of the values may be specified for the given parameter.
+
+    A value enclosed in square braces '[]' is optional.
+
+    General keyword syntax:
+
+    The keyword format follows the X config format and is as follows:
+
+        <hostname>.<instance>.<serviceName>*<config_variable> : <value>
+
+    The hostname, instance, and serviceName fields are tightly bound (i.e.,
+    additional fields may NOT be inserted between these fields). Hence,
+    these fields are delimited with a '.'. On the other hand, the
+    serviceName and config_variable fields are loosely bound (i.e.,
+    additional fields may be inserted between these fields). Hence, these
+    fields are delimited with a '*'. The hostname and/or instance fields may
+    be replaced with a wild card value '*'. Hence, the following keyword
+    formats are possible:
+
+        <hostname>*<serviceName>*<config_variable> : <value>
+        *<instance>.<serviceName>*<config_variable> : <value>
+        *<serviceName>*<config_variable> : <value>
+
+    Note: If a parameter is applicable to the service as a whole, the
+          following format should be chosen:
+          *<serviceName>*<config_variable> : <value>
+
+
+    ***************************************************************************
+                  Common Source Service parameters
+    ***************************************************************************
+
+
+    *<serviceName>*serviceId: XX
+
+@B@G@N@N@@AUTOMATICALLY ASSIGNED@ *"${svc}"*serviceId : XX
+#help
+
+    serviceId:  { 256 - 65535 }
+
+    The configuration utilities assign a unique value from the 
+    specified range. Each TREP Service must have a unique Id.
+
+    Default value: AUTOMATICALLY ASSIGNED, DO NOT REMOVE the XX.
+#end
+
+
+
+    *<serviceName>*cacheType: { sinkDriven, sourceDriven }
+
+
+!*******************************************
+! IMPORTANT:
+!
+!"cacheType" parameter MUST be defined here. 
+!*******************************************
+@A@G@S@LsinkDriven,sourceDriven@@CACHE TYPE@ *"${svc}"*cacheType : _____
+#help
+
+    cacheType:  { sinkDriven, sourceDriven }
+
+    One of two values MUST be specified:
+
+    sinkDriven   - The cache content is determined by sink/network demand.
+                   A sink-driven server is allowed to add an item to its
+                   cache only upon the reception of an Open request.
+                   This type of server functions as an interactive datafeed
+                   handler and was formerly called a "Selective Cache" server.
+
+    sourceDriven - The cache content is determined solely by the source
+                   application/ datafeed. Network demand has no bearing on
+                   the contents of the cache. A source-driven server is
+                   allowed to add an item to its cache at any time.
+                   This type of server functions as a broadcast datafeed
+                   handler and was formerly called a "Full Cache" server.
+                   
+    Default value: NONE - THIS PARAMETER MUST BE DEFINED
+#end
+
+   *<serviceName>*cacheLocation: { ssl, srcApp }
+
+
+
+!***************************************************************************
+! IMPORTANT:
+!
+! "cacheLocation" parameter MUST be defined here.
+!
+! Set the default for this one according to how the app was written. If it 
+! only works one way, make this param read only (make first 2 chars "@R").
+!***************************************************************************
+@A@G@S@Lssl,srcApp@@CACHE LOCATION@ *"${svc}"*cacheLocation : _____
+#help
+
+    cacheLocation:  { ssl, srcApp }
+
+    One of two values MUST be specified:
+    ssl    - The data cache will be maintained in the Source Distributor/ADH.
+    srcApp - The data cache will be maintained in the Source Application.
+             Caching will be disabled in the Source Distributor/ADH in this case.
+
+    NOTE: When cache is located in Source Distributor/ADH, the respond time is 
+          fastest, however more machine physical memory is utilized. 
+          When cache is located in Source Application respond time is 
+          significantly slower.
+          Caching MUST BE ENABLED (ssl) in the Source Distributor/ADH for FID 
+          Filtering. 
+
+    Default value: NONE - THIS PARAMETER MUST BE DEFINED
+#end
+
+
+	*<serviceName>*nonCachingItemFile: 
+
+@A@G@S@N@@NON CACHING ITEM FILE@ *"${svc}"*nonCachingItemFile : 
+
+
+#help
+
+    nonCachingItemFile:
+
+    If this parameter is defined, it must specify the path name (full
+    or relative) of a 'nonCachingItems' file. This file must contain one
+    regular expression entry per line, along with optional parameters. 
+	Items with RIC names matching a regular expression in the file will 
+	not be cached and all requests for those items will be forwarded upstream.
+
+	Format:  <itemName> [D:<domain>]
+
+	The default domain of the item is MARKET PRICE, unless otherwise specified.
+	See the install manual for allowed domains.
+
+    Note: All downstream RSSL-based TREP 6 components will be unable to
+          cache any item specified in this file.
+
+    Examples:
+        IBM => all RICs containing "IBM" will not be cached
+        ^IBM => all RICs beginning with "IBM" will not be cached
+        IBM$ => all RICs ending with "IBM" will not be cached
+        ^IBM$ => the RIC "IBM" will not be cached
+
+    Default value: /var/reuters/rmds/nonCachingItem_file
+
+    Note: It is recommended that this filename incorporate the service name
+          so as to avoid accidentally sharing the same filename used by
+          another service.
+#end
+
+
+        *<serviceName>*nonCachingItemList:
+
+@A@G@S@N@@NON CACHING ITEM LIST@ *"${svc}"*nonCachingItemList :
+#help
+
+    nonCachingItemList:
+
+    This parameter is a comma separated list of regular expressions that
+    specifies items which are not to be cached. Items with RIC names
+    matching a regular expression in the list will not be cached and all
+    requests for those items will be forwarded upstream.
+
+    Note: All downstream RSSL-based TREP 6 components will be unable to
+          cache any item specified in this list.
+
+    Examples:
+        IBM => all RICs containing "IBM" will not be cached
+        ^IBM => all RICs beginning with "IBM" will not be cached
+        IBM$ => all RICs ending with "IBM" will not be cached
+        ^IBM$ => the RIC "IBM" will not be cached
+
+    Default value: none
+#end
+
+
+	*<serviceName>*domainsCached:
+
+@A@G@S@N@ALL@DOMAINS CACHED@ *"${svc}"*domainsCached : ALL
+#help
+
+    domainsCached: <comma-separated list> or ALL
+
+    Defines a list of RDM domains for which caching is enabled.
+
+    If domainsCached variable has entries, then any domain not in the list
+    will not be cached.
+
+    If the variable domainsCached has entries then it takes precedence in
+    the processing and the variable domainsNotCached is ignored.
+
+    To enable caching for all domains:
+        *domainsCached: ALL
+
+    The domainsCached parameter affects only OMM (dataType 6) caching.
+
+    Default value: ALL
+#end
+
+    *<serviceName>*domainsNotCached:
+
+@A@G@S@N@@DOMAINS NOT CACHED@ *"${svc}"*domainsNotCached :
+#help
+
+    domainsNotCached: <comma-separated list> or <empty>
+
+    Defines a list of RDM domains for which caching is disabled.
+
+    If domainsNotCached variable has entries, then any domain not in the list
+    will be cached.
+
+    If the variable domainsCached has entries then it takes precedence in
+    the processing and the variable domainsNotCached is ignored.
+
+    The domainsNotCached parameter affects only OMM (dataType 6) caching.
+
+    Default value: <empty>
+#end
+
+	*<serviceName>*convertToIDNStyle: { True, False }
+
+@A@G@S@LTrue,False@False@CONVERT DATA TO IDN STYLE@ *"${svc}"*convertToIDNStyle : False
+#help
+
+    convertToIDNStyle: { True, False }
+
+    This parameter controls the conversion of OMM data to Marketfeed data 
+    between IDN style and Non IDN style. By default, the conversion is non 
+    IDN style. For RDF and RDF Direct service configuration, the default 
+    will be True as they produce the IDN special blank values. The default 
+    is False for other service configurations.
+
+
+    For example:
+    
+       convertToIDNStyle: True 
+       INTEGER and PRICE will have '+0' for blank fields and '+' sign for positive value
+       TIME will have '  :  :  ' for blank fields
+
+       convertToIDNStyle: False
+       INTEGER and PRICE will have an empty(zero length) for blank fields
+       TIME will have an empty(zero length) for blank fields
+       All positive value will be converted without a '+' sign
+
+    Default value: False
+#end
+
+    *<serviceName>*convertMfeedDataToRWF: { True, False }
+
+!***************************************************************************
+! IMPORTANT:
+!
+! Set "convertMfeedDataToRWF" parameter according to how app needs source 
+! distributor to behave. Make this param read only (make first 2 chars "@R").
+!***************************************************************************
+@A@G@S@LTrue,False@False@CONVERT MF DATA TO RWF@ *"${svc}"*convertMfeedDataToRWF : False
+#help
+
+    convertMfeedDataToRWF: { True, False }
+
+    This parameter controls the optional data format conversion built into the
+    Source Distributor/ADH. If set to True, data received in Marketfeed format 
+    will be converted to and cached in RWF Field List format. If set to False,
+    data received in Marketfeed format will remain as is and cached in 
+    Marketfeed format.
+
+    NOTE: This parameter is only applicable for services of dataType 6 (RWF) 
+          and does not apply to data already received in RWF Field List format.
+
+    If this parameter is not present in the TREP configuration file, the Source
+    Distributor/ADH will default to a value of True for SSL-based applications and
+    a value of False for RSSL-based applications.
+
+    To cascade Marketfeed over RSSL, refer to the parameter 
+    disableDataConversion.
+
+    Default value: False
+#end
+
+
+    *<serviceName>*validateMfeedToRWFConvForPosts: { True, False }
+
+@A@G@S@LTrue,False@False@VALIDATE MF TO RWF CONVERSION FOR POSTS@ *"${svc}"*validateMfeedToRWFConvForPosts : False
+#help
+
+    validateMfeedToRWFConvForPosts: { True, False }
+
+	This parameter controls the ADH behavior when it has to convert Marketfeed
+	data to RWF format for posts/inserts. If enabled, ADH will NAK conversion
+	failures because of invalid data formats in the Marketfeed payload i.e. any
+	conversion failures when creating the RWF field list from the MF payload
+	data.
+
+    Default value: False
+#end
+
+
+    *<serviceName>*dataTypeForMFBinaryFID: { MF_Binary, Opaque, Base64, Base64IDN }
+
+@A@G@S@LMF_Binary,Opaque@MF_Binary@DATA TYPE FOR MF BINARY FID@ *"${svc}"*dataTypeForMFBinaryFID : MF_Binary
+#help
+    dataTypeForMFBinaryFID: { MF_Binary, Opaque, Base64, Base64IDN }
+
+    This parameter controls Marketfeed binary to RWF buffer format convertion.
+
+    One of two values MUST be specified:
+    MF_Binary  - convert MF characters (0x40 to 0x7f) <-> RWF buffer 
+    Opaque     - no convertion between MF binary and RWF buffer but direct copy.
+                 For this option, MF binary character can be any ascii value.
+    Base64     - convert MF characters (0x40 to 0x7f) <-> RWF buffer using SFC Base64 pack/unpack function
+    Base64IDN  - convert MF characters (0x40 to 0x7f) <-> RWF buffer using SFC Base64IDN pack/unpack function
+
+    Default value: MF_Binary
+#end
+
+
+     *<serviceName>*seqNumFollowsMarketfeedRules: { True, False }
+
+!***************************************************************************
+! IMPORTANT:
+!
+! Set "seqNumFollowsMarketfeedRules" parameter according to how app works.
+!***************************************************************************
+
+@A@G@S@LTrue,False@False@SEQ NUM FOLLOWS MARKETFEED RULES@ *"${svc}"*seqNumFollowsMarketfeedRules : False
+#help
+
+    seqNumFollowsMarketfeedRules: { True, False }
+
+    This parameter determines if the RWF's sequenceNo should be set to the 
+    Marketfeed's RTL during Marketfeed-to-RWF conversions. Also, if the RTL
+    should be set to the RWF's sequenceNo during RWF-To-Marketfeed
+    conversions.
+
+    Default value: False
+#end
+
+
+    *<serviceName>*priorityAwareMarketfeed: { True, False }
+
+
+@A@G@S@LTrue,False@False@PRIORITY AWARE MARKETFEED@ *"${svc}"*priorityAwareMarketfeed : False
+#help
+
+    priorityAwareMarketfeed: { True, False }
+
+    This parameter indicates if the Marketfeed contains priority information
+    which is used for Trade-Safe conflation.
+
+    Default value: False
+#end
+
+
+    *<serviceName>*serviceRestartTime: 600
+
+@A@G@N@N@600@SERVICE RESTART TIME@ *"${svc}"*serviceRestartTime : 600
+#help
+
+    serviceRestartTime: 600
+
+    This value is used to determine the delay time for a service distributor
+    to restart itself. The service distributor will wait for 600 seconds
+    (default) before it restarts. This number should be set high so that
+    the system could control the error that could cause the service distributor
+    to restart.
+
+    Default value: 600
+#end
+
+
+
+    *<serviceName>*dataType: 
+
+!***************************************************************************
+! IMPORTANT:
+!
+! "dataType" parameter MUST be defined here. Make this param read only (make 
+! first 2 chars "@R").
+!***************************************************************************
+@A@G@N@R1,1024@@DATA TYPE@ *"${svc}"*dataType : _____
+#help
+
+    dataType:  { 1 - N }
+
+    Indicates the format of the data provided by the service.
+    If the 'cacheLocation' is set to 'ssl', one of the following values
+    MUST be specified:
+         1 - standard ANSI Page format
+         2 - standard Marketfeed Record format
+         6 - standard Reuters Wire format
+    If the 'cacheLocation' is set to 'srcApp', one of the above values may
+    be specified for this parameter. However, if the service provides some
+    other type of data, it may define its own unique value for this parameter.
+
+    Default value: NONE - THIS PARAMETER MUST BE DEFINED
+#end
+
+
+
+    *<serviceName>*preemption: {ssl, srcApp, none}
+
+!****************************************************************************
+! IMPORTANT:
+!
+! "preemption" parameter SHOULD be set. Make this param read only (make first 
+! 2 chars "@R").
+!****************************************************************************
+@A@G@S@Lssl,srcApp,none@@WHO DOES PREEMPTION(SERVICE)@ *"${svc}"*preemption : _____
+#help
+
+    preemption:  { ssl, srcApp, none }
+
+    This parameter is applicable only if 'cacheType' is 'sinkDriven'.
+    One of the values MUST be specified in this case:
+
+    none   - Preemption will be disabled.  Once the cache limit is reached,
+             new item requests will be rejected by the TREP infrastructure.
+    ssl    - Preemption will be performed by the SSL infrastructure.
+    srcApp - Preemption will be performed by the source application.
+             The TREP infrastructure will not manage the cache size.
+             All new requests will be passed to the source application.
+    Note : There is the second configuration entry in this file to configure 
+           the preemption on a service_dist. The preemption parameter may need
+           to be set to different values on the adh(s)/adh(s) and the 
+           service_dist in order to correctly support a given source service. 
+           It is valid to set the preemption to 'ssl' for a service (i.e. for 
+           the adh(s)/adh(s)) and to 'srcApp' for the service_dist.  In all 
+           other cases, the preemption values for the adh(s)/adh(s) and the 
+           service_dist must be the same.
+
+
+    Default value: NO DEFAULT VALUE.  THIS PARAMETER MUST BE DEFINED
+#end
+
+
+
+
+	*<serviceName>*forwardItemPriorityToSrcApp: {True, False}
+
+@A@G@S@LTrue,False@False@SEND PRIORITY TO SOURCE APPL.@ *"${svc}"*forwardItemPriorityToSrcApp : False
+#help
+
+    forwardItemPriorityToSrcApp: { True, False }
+
+    This parameter indicates whether an item's priority should be forwarded
+    to the source application. If this parameter is set to 'True', the source
+    application will receive the network priority of an item (1) in the
+    SSL_MT_REQ_IMAGE message, and (2) in the SSL_MT_PRIORITY message whenever
+    the priority of an item changes.
+
+    Default value: False
+#end
+
+
+    *<serviceName>*supportsOutofBandSnapshots: {True, False}
+
+!***************************************************************************
+! IMPORTANT:
+!
+! "supportsOutofBandSnapshots" parameter SHOULD be set according to how 
+! "cacheType" is configured.
+!***************************************************************************
+@A@G@S@LTrue,False@False@SERVICE SUPPORTS OOB SNAPSHOT REQ.@ *"${svc}"*supportsOutofBandSnapshots : False
+#help
+
+    supportsOutofBandSnapshots: { True, False }
+
+    This parameter is applicable only if 'cacheType' is 'sinkDriven'.
+    A service which claims to support out-of-band snapshots must be able to
+    provide an image for an un-cached item when its cache is full without
+    preempting an existing item. Furthermore, the service must not supply
+    updates for this item following the image.
+
+    Default value: False
+#end
+
+
+
+    *<serviceName>*supportsSnapshots: {True, False}
+
+!***************************************************************************
+! IMPORTANT:
+!
+! "supportsSnapshots" parameter SHOULD be set according to how app works. 
+!***************************************************************************
+@A@G@S@LTrue,False@True@SERVICE SUPPORTS SNAPSHOT REQ.@ *"${svc}"*supportsSnapshots : True
+
+
+#help
+
+    supportsSnapshots: { True, False }
+
+    This parameter controls the conversion of snapshot requests to
+    normal requests. A service which claims to support snapshots must be able
+    to handle snapshot requests without having to convert to normal request.
+    This parameter is applicable only if 'cacheType' is 'sinkDriven'.
+
+    Default value: True
+#end
+
+
+
+	*<serviceName>*convertNotInCacheToImage: False
+
+!***************************************************************************
+! IMPORTANT:
+!
+! "convertNotInCacheToImage" parameter MIGHT need to be set up according to 
+! how "cachetype" is configured.
+!***************************************************************************
+@A@G@S@LTrue,False@False@CONVERT NOT IN CACHE TO IMAGE @ *"${svc}"*convertNotInCacheToImage : False
+#help
+
+    convertNotInCacheToImage:  { True , False }
+
+    This parameter is applicable only if 'cacheType' is set to 'sourceDriven'.
+    When this parameter is set to True, a image is sent with data defined in 
+    the parameter 'notInCacheData' instead of a CLOSED status when a non-existent
+    item is requested from the server.
+
+    Default value: False
+#end
+
+	*<serviceName>*clearNotInCacheImageWhenActive : False
+
+@A@G@S@LTrue,False@False@CLEAR NOT IN CACHE IMAGE@ *"${svc}"*clearNotInCacheImageWhenActive : False
+#help
+
+    clearNotInCacheImageWhenActive:  { True , False }
+
+    When convertNotInCacheToImage is set to True, this parameter will instruct
+    the ADH whether to clear the not-in-cache image data from cache when the item
+    goes active.
+
+    Default value: False
+#end
+
+     *<serviceName>*notInCacheData: DSPLY_NAME, Not In Cache
+
+!***************************************************************************
+! IMPORTANT:
+!
+! "notInCacheData" parameter MIGHT need to be set up according to 
+! how "cacheType" and "convertNotInCacheToImage" is configured. 
+!***************************************************************************
+
+@A@MN@S@N@DSPLY_NAME, Not In Cache@NOT IN CACHE DATA@ *"${svc}"*notInCacheData : DSPLY_NAME, Not In Cache
+#help
+
+    notInCacheData:
+
+    This parameter is applicable only if 'cacheType' is 'sourceDriven' and
+    'convertNotInCacheToImage' is set to True.
+
+    - A comma separated list of FID and value pairs.
+    - All fields must be text (MF ALPHANUMERIC).
+    - The FIDs may be specified by either numeric or ACRONYM.
+    - FID range is -32768 to 32767, with zero (0) being an illegal value.
+
+    If any of the FIDs are illegal, an error is logged and the feature is 
+    turned off.
+
+    Default value: DSPLY_NAME, Not In Cache
+#end
+
+
+     *<serviceName>*notInCacheFLN:
+
+!***************************************************************************
+! IMPORTANT:
+!
+! "notInCacheFLN" parameter MIGHT need to be set up according to 
+! how "cacheType" and "convertNotInCacheToImage" is configured. 
+!***************************************************************************
+@A@MN@S@N@@NOT IN CACHE FLN@ *"${svc}"*notInCacheFLN :
+#help
+
+    notInCacheFLN:
+
+    This parameter specifies a Field List Number (template number) as a
+    numeric value and is applicable only if cacheType is sourceDriven and
+    convertNotInCacheToImage is set to True.  Supported range is -32768 to
+    32767 and will default to zero(0) if no value is provided; However
+    zero (0) is not recommended as any Marketfeed device receiving a
+    message containing an FLN of zero may treat this as an exception
+    condition.  This parameter requires administrator attention when
+    configuring the blank image response feature.
+
+#end
+
+
+
+    *<serviceName>*removeUnwatchedItems: False
+
+@A@G@S@LTrue,False@False@REMOVE UNWATCHED ITEMS@ *"${svc}"*removeUnwatchedItems : False
+#help
+
+    removeUnwatchedItems:  { True, False }
+
+    When 'cacheType' is 'sinkDriven',
+    If an item is closed and its priority class is less than the
+    lockedItemThreshold and removeUnwatchedItems is set to True,
+    the item will be removed from cache after it ages based
+    on the value of ageUnwatchedItemTime. If removeUnwatchedItems
+    is set to False then the item remains in cache without aging.
+
+    Default value: False (retain all unwatched items in cache without aging)
+#end
+
+    *<serviceName>*ageUnwatchedItemTime: 0
+
+@A@G@N@N@0@AGE UNWATCHED ITEM TIME@ *"${svc}"*ageUnwatchedItemTime : 0
+#help
+
+    ageUnwatchedItemTime:  { 0 - N seconds }
+
+    If 'cacheType' is 'sinkDriven'
+    and an item is closed and its priority class is less than the
+    lockedItemThreshold value, and if removeUnwatchedItems is set to true,
+    the item will remain in cache until the specified time (in seconds) after
+    which it is removed. If removeUnwatchedItems is set to False the items
+    remain in cache without aging.
+    This parameter is applicable even if 'removeUnwatchedItems' is False when 
+    'cacheType' is 'sourceDriven'. When a non existent item is requeted from 
+    a source driven server the item remains in cache until the specified time 
+    (in seconds) after which it is removed but if an item becomes unwatched 
+    after it has been watched it will not be removed from cache. 
+
+    Default value: 0
+#end
+
+
+    *<serviceName>*lockedItemThreshold: 5
+
+@A@G@N@R0,11@5@LOCKED ITEM THRESHOLD@ *"${svc}"*lockedItemThreshold : 5
+#help
+
+    lockedItemThreshold:  { 0 - 11 }
+
+    This parameter is applicable only if 'cacheType' is 'sinkDriven'.
+
+    The lockedItemTreshold and removeUnwatchedItems parameters
+    configure what happens to an item when it becomes unwatched
+    (i.e. when the last/only sink component watching an item drops
+    its interest in the item).  The component applies the
+    lockedItemThreshold parameter and then the removeUnwatchedItems
+    parameter to determine if the item should be removed from the
+    cache-list (and what the item's priority should be if it is to
+    remain in the cache-list).
+
+    When an item becomes unwatched, there are three possible
+    outcomes:
+
+    1. The item's priority class is at or above the lockedItemThreshold.
+
+       The item remains in the cache-list with its priority
+       class unchanged and its priority count set to zero.
+
+    2. The item's priority class is below the
+       lockedItemThreshold and removeUnwatchedItems is False.
+
+       The item remains in the cache-list with its priority
+       class set to zero and its priority count set to zero.
+
+    3. The item's priority class is below the lockedItemThreshold
+       and removeUnwatchedItems is True.
+
+       The item is removed from the cache-list after the
+       ageUnwatchedItemTime interval.
+
+    Default value: 5
+#end
+
+	*<serviceName>*preemptionRecoveryThreshold: 0
+
+@A@G@N@R0,11@0@PREEMPTION RECOVERY THRESHOLD@ *"${svc}"*preemptionRecoveryThreshold : 0
+#help
+
+    preemptionRecoveryThreshold:  { 0 - 11 }
+
+    This parameter is applicable only if 'cacheType' is 'sinkDriven'.
+    When an item is preempted:
+    a) If its priority class is greater than or equal to this value, the item
+       will be automatically recovered by the SSL infrastructure after the
+       'preemptionRetryTime' (in seconds) has elapsed.
+    b) If the item's priority class is less than this value, it will not be
+       recovered by the SSL infrastructure.
+
+    Default value: 0
+#end
+
+
+
+
+    *<serviceName>*maxLoadLevel: 65535
+
+@A@G@N@R0,65535@65535@MAX. LOAD VALUE@ *"${svc}"*maxLoadLevel : 65535
+#help
+
+    maxLoadLevel:  { 0 - 65535 }
+
+    This is the maximum load level which can be published by a source
+    service on TREP. The maxLoadLevel is used to scale down SSL
+    infrastructure-generated load factors.  Source application 
+    published load factors are not affected by the maxLoadLevel
+    parameter.  There is no way to scale up the load factor in the SSL 
+    Infrastructure.
+
+    The maxLoadLevel should almost always be the default of 65535, which
+    indicates that the load factor should not be scaled down.  The
+    exception is when load-balancing servers that provide differing load
+    factors (e.g. ISFS and RDF).  If maxLoadLevel is set to a value other
+    than the default, then the
+    normalizedLoadLevelThresholdForConcurrentRequests parameter probably
+    also needs to be changed.
+
+    Default value: 65535
+#end
+
+
+    *<serviceName>*includeUnwatchedItemsInLoad: False
+
+@A@G@S@LTrue,False@False@INCLUDE UNWATCHED ITEMS IN LOAD@ *"${svc}"*includeUnwatchedItemsInLoad : False
+#help
+
+    includeUnwatchedItemsInLoad:  { True, False }
+
+    This parameter specifies whether unwatched items in the cache are
+    counted towards the servers load factor.  The normal load factor
+    calculation is watchedItems / maxCache * maxLoadLevel.  If this
+    parameter is set to True, the load factor calculation becomes:
+    cachedItems / maxCache * maxLoadLevel.
+
+    This parameter defaults to False.  One possible scenario where it
+    might be set to True is when a service is made up of local servers
+    and a BGD server (serving items from a remote network).  This would
+    prevent the BGD from removing unwatched items to respond to a new
+    item request when the local servers have spare cache capacity.
+
+    Default value: False
+#end
+
+
+    *<serviceName>*rrmpFlushInterval: 20
+
+@A@G@N@R0,999@20@BUFFER FLUSH INTERVAL@ *"${svc}"*rrmpFlushInterval : 20
+#help
+
+    rrmpFlushInterval: { 0 - 999 }
+
+    This parameter augments the zero millisecond flush time of the
+    Source Distributor/ADH buffer by the Dispatcher. Before, the buffer was flushed
+    immediately upon relinquishing control by the Transmission Bus. 
+    Message/Update packing was controlled by the inputBias (see inputBias for 
+    more info). By specifying this parameter from 1 to 999 milliseconds, 
+    the buffer will no longer be flushed upon relinquishing control by the 
+    Transmission Bus, but will be time-based from the parameter, 
+    rrmpFlushInterval. The default value for the "flushing" is 20 milliseconds,
+    which is equivalent to SSL3.X If the value for rrmpFlushInteval is given as
+    less than 0 or greater than 999, rrmpFlushInterval takes on the value of 0.
+    If set to 0, immediate flushing is achieved.
+
+    Default value: 20
+#end
+
+
+    *<serviceName>*normalizedLoadLevelThresholdForConcurrentRequests: 95
+
+@A@G@N@R1,100@95@CONCURRENT REQ. THRESHOLD@ *"${svc}"*normalizedLoadLevelThresholdForConcurrentRequests : 95
+#help
+
+    normalizedLoadLevelThresholdForConcurrentRequests:  { 0 - 100 }
+
+    This parameter value is expressed as a percentage (0 to 100). The SSL
+    infrastructure calculates the load level threshold by multiplying
+    the maximum load level (65,535) by this percentage.
+    This parameter allows the SSL to distribute Open Requests for new 
+    items (not in cache) across multiple servers in parallel as follows:
+    a) The SSL will regard all servers having a normalized load level less than
+       or equal to this threshold value as equal for load balancing purposes.
+       That is, the SSL will route an Open Request for a new item to the server
+       within this subset having the least number of outstanding requests (pending
+	   out requests) for new items. If all the servers within this subset become 
+	   blocked (which means that the server's "maximum number of outstanding 
+	   requests for new items" limit has been reached), the SSL will stop sending 
+	   Open Requests for new items to the service until one of these servers unblocks.
+       (Note: If an item request is denied by a server, it will be sent to the
+       least loaded server which has not yet been tried even if this server is
+       blocked.)
+    b) If no servers have a normalized load level less than or equal to this
+       threshold value, an Open Request for a new item will be sent to the
+       absolutely least loaded server. Once this server becomes blocked, the
+       SSL will stop sending Open Requests for new items to the entire service
+       until the least loaded server unblocks. (Note: If an item request is
+       denied by this server, it will be sent to the next least loaded server
+       even if this server is blocked.)
+
+    Note: The threshold calculation does not take into account the
+          maxLoadLevel parameter.  If the source server is not using the 
+          entire load range (0 to 65535), this percentage should be lowered 
+          appropriately.
+          Example:  A healthy ISFS broadcasts a maximum load of 32767; this
+                    parameter should be 45%.
+
+    Default value: 95
+#end
+
+
+    *<serviceName>*insertAction: { lowest, any, allAll, allAny, single }
+!***************************************************************************
+! IMPORTANT:
+!
+! "insertAction" parameter SHOULD be set if app supports inserts.
+!***************************************************************************
+
+@A@G@S@Llowest,any,allAll,allAny,single@lowest@INSERT ROUTING@ *"${svc}"*insertAction : lowest
+#help
+
+    insertAction: { lowest, any, allAll, allAny, single }
+
+    Defines how the SSL infrastructure will handle an Insert request.
+    One of the following actions may be specified:
+
+     lowest - Send the Insert to the server having the lowest load level. If
+              multiple servers have an equally low load level, the Insert will
+              be sent to the server within this subset which was started up 
+              first. 
+     any    - Send the Insert to any single server. Servers will be selected to
+              receive Inserts in a round-robin fashion; load level will be
+              ignored.
+     allAll - Send the Insert to ALL source servers. An Insert acknowledgement
+              (ACK) will be sent to the sink application only if ALL servers 
+              ACK the Insert. Otherwise, a negative acknowledgement (NAK) will 
+              be sent to the sink application.
+     allAny - Send the Insert to ALL source servers. An Insert acknowledgement
+              (ACK) will be sent to the sink application if ANY server ACK's
+              the Insert. Otherwise, a negative acknowledgement (NAK) will be
+              sent to the sink application.
+     single - Always send the Insert to the same single server. Servers will be
+              selected to receive Inserts in a random fashion;
+              load level will be ignored. When the server is no more 
+              available the new one will be selected.
+    
+    Default value: lowest
+#end
+
+
+    *<serviceName>*insertTimeout: { 1 - N seconds}
+
+!***************************************************************************
+! IMPORTANT:
+!
+! "insertTimeout" parameter SHOULD be set if app supports inserts.
+!***************************************************************************
+@A@G@N@N@30@INSERT TIMEOUT@ *"${svc}"*insertTimeout : 30
+#help
+
+    insertTimeout:
+
+    This parameter defines the time interval (in seconds) that the
+    Source Distributor/ADH or the P2PS/ADS will wait for an ACK or NAK to an
+    Insert request before timing-out the request. The default value
+    is 30 seconds. An Insert NAK message indicating no response is
+    generated if the Insert request times out.
+
+    If 'enableHotStandbyInserts' is set to True, this is the time
+    interval (in seconds) that the Standby Source Distributor/ADH will
+    wait for a insert response from its peer of this SERVICE before
+    sending a response to the client for the insert request.
+
+    Default value: 30
+#end
+
+
+        *<serviceName>*maxPendingOutInsert : { 1 - N }
+
+!***************************************************************************
+! IMPORTANT:
+!
+! "maxPendingOutInsert" parameter SHOULD be set if app supports inserts.
+!***************************************************************************
+
+@A@G@N@N@100000@MAX PENDING OUT INSERT@ *"${svc}"*maxPendingOutInsert : 100000
+#help
+
+    maxPendingOutInsert:
+
+    This parameter defines the maximum number of pending out insert
+    requests. If the value of this parameter is reached and there is
+    a new insert request coming, the Source Distributor/ADH will discard
+    the insert request and send an Insert NAK message to the P2PS.
+
+    Default value: 100000
+#end
+
+
+    *<serviceName>*insertFlushInterval: { 0 - N milliseconds }
+
+@A@G@N@N@20@INSERT FLUSH INTERVAL@ *"${svc}"*insertFlushInterval : 20
+#help
+
+    insertFlushInterval:
+
+    This parameter controls the maximum time (in milliseconds) that an
+    insert request will be held by the P2PS before it is flushed to the
+    Market Data Hub (i.e. the Source Distributor/ADH).  Lower values (i.e.
+    below 20ms) decrease insert request latency at the possible expense
+    of insert throughput (due to reduced insert request packing).
+    It can be set to zero (0) for the lowest possible latency.
+
+    Default value: 20
+#end
+
+
+    *<serviceName>*serviceQueueTimerMilliseconds: { 10 - N milliseconds }
+
+@A@G@N@N@10@SERVICE QUEUE TIMER MILLISECONDS@ *"${svc}"*serviceQueueTimerMilliseconds : 10
+#help
+
+    serviceQueueTimerMilliseconds : { 1 - N milliseconds }
+
+    This parameter controls how frequently (in milliseconds) the ADS
+    (and RTIC using RRMP adapter) processes its item request queues.
+    Lower values reduce image retrieval latency (but may reduce maximum
+    update throughput).
+
+    Default value: 10
+#end
+
+
+
+    *<serviceName>*staleRecoveryRetryTime : 600
+
+@A@G@N@R1,65535@600@STALE RECOVERY RETRY TIME@ *"${svc}"*staleRecoveryRetryTime : 600
+
+#help
+
+    staleRecoveryRetryTime : { 1, 65535 }
+
+    This parameter controls the time interval two consecutive stale
+    recovery attempts are scheduled to take place. When picking a value
+    keep in mind that during stale item recovery, normal data stream 
+    might be disrupted, and preemption may happen when cache is full
+    because currently preemption algorithms doesn't diffirentiate 
+    between good and stale items. Be careful with small values.
+
+    Default value: 600
+#end
+
+
+    *<serviceName>*preemptionRetryTime: 180
+
+@A@G@N@N@180@PREEMPTED ITEM RECOVERY TIME@ *"${svc}"*preemptionRetryTime : 180
+#help
+
+    preemptionRetryTime:  { 1 - N  seconds }
+
+    This parameter is applicable only if 'cacheType' is 'sinkDriven'.
+    See the 'preemptionRecoveryThreshold' description.
+
+    Default value: 180
+#end
+
+
+    *<serviceName>*normalRetryTime: 120
+
+@A@G@N@N@120@NORMAL ITEM RECOVERY TIME@ *"${svc}"*normalRetryTime : 120
+#help
+
+    normalRetryTime:  { 1 - N  seconds }
+
+    If an item can not be obtained from any available server, on initial
+    requests or after a server failure, the SSL infrastructure will 
+    attempt to re-open the item after this amount of time (in seconds) 
+    has elapsed.
+
+    Default value: 120
+#end
+
+
+    *<serviceName>*retryTimer : 60
+
+@A@G@N@N@60@REQUEST RETRY TIMER@ *"${svc}"*retryTimer : 60
+#help
+
+    retryTimer : { 1 - N seconds }
+
+    This parameter defines the time interval (in seconds) that the
+    P2PS will wait for a response to an Open request from any server
+    of this SERVICE before retrying the request.
+
+    Default value: 60
+#end
+
+
+    *<serviceName>*retryLimit : 0 
+
+@A@G@N@N@0@REQUEST RETRY LIMIT@ *"${svc}"*retryLimit : 0
+#help
+
+    retryLimit : { 0 - N }
+
+    Specifies the maximum number of times that the P2PS will
+    automatically retry an item request from a server before going on to
+    the next server in the SERVICE. If none of the servers supply the item
+    the request is placed on the item recovery queue to try again in 
+    "normalRetryTime" seconds.
+
+    Default value: 0
+#end
+
+
+    *<serviceName>*nonRecoverablePolling : False
+
+@A@G@S@LTrue,False@False@NON-RECOVERABLE POLLING@ *"${svc}"*nonRecoverablePolling : False
+#help
+
+    nonRecoverablePolling : { True, False }
+
+    This parameter specifies whether or not the P2PS will automatically
+    try another server in a service when a server responds with a NON-
+    RECOVERABLE open request response. If this parameter is set to 'True',
+    then the P2PS will attempt to retrieve the item from the next least
+    loaded server.
+
+    Note: Illegal Item names fall into the NON-RECOVERABLE category. This
+          would cause the P2PS to call the 'Illegal' item from all the
+          servers within the service. This could cause problems with
+          certain data feeds that limit the number of requests allowed.
+
+    Default value: False
+#end
+
+
+    *<serviceName>*openWindowTimeWindow : 15
+
+@A@G@N@N@15@OPEN WINDOW TIME WINDOW@ *"${svc}"*openWindowTimeWindow : 15
+#help
+
+    openWindowTimeWindow: { 1 - N seconds }
+
+    This parameter specifies the number of seconds the p2ps
+    waits to send a status message to the sink application when an item is 
+    pending and the source has changed its request window to 0 (which means
+    it will no longer accept new requests).
+
+    Default value 15.
+#end
+
+
+    *<serviceName>*logNonRecoverableOpens : False
+
+@A@G@S@LTrue,False@False@LOG NON-RECOVERABLE OPENS TO LOG FILE@ *"${svc}"*logNonRecoverableOpens : False
+
+#help
+
+    logNonRecoverableOpens : { True, False }
+
+    This parameter specifies whether or not the P2PS will
+    will log NonRecoverableOpens into the log file.
+
+    Default value: False
+#end
+
+
+    *<serviceName>*pollCache : True
+
+@A@G@S@LTrue,False@True@POLL CACHE@ *"${svc}"*pollCache : True
+#help
+
+    pollCache : { True, False }
+
+    This parameter determines which list the Source Distributor/ADH will
+    look up on a poll request from the P2PS to check 
+    for the existence of the requested item. If pollCache is set 
+    to True the cache list is looked up and if it is set to False 
+    the watch list is looked up. The cache list contains items 
+    that are cached and the watch list contains items that are open. 
+
+    Note: The recommended configuration for sources with partitioned
+          source server caches is True and for sources with similar
+          source server caches is False. If the service has a
+          combination of partitioned and similar source server
+          caches then the recommended configuration is False.
+
+    Default value: True
+#end
+
+
+    *<serviceName>*dismountOnOutage: {True, False}
+
+@A@G@S@LTrue,False@False@DISCONNECT SERVER FROM NETWORK@ *"${svc}"*dismountOnOutage : False
+#help
+
+    dismountOnOutage: { True, False }
+
+    This parameter specifies whether the server will be removed from
+    the network when a communication outage occurs.
+
+    When commLinks are configured, communication outage detection is
+    based on link status.  A communication outage begins when any
+    communication link goes bad.  The communication outage ends when
+    all links are good.  A communication link is considered as good,
+    if all groups belonging to that link have a status of okay,
+    recovering, or unknown.  A communication link is considered as
+    bad if at least one of its groups has a status of stale, closed
+    or closed_recover.
+
+    When commLinks are not configured, communication outage detection
+    is based on group status messages alone.  A communication outage
+    begins when any GroupStatus message is received with a stale,
+    closed, or closed_recoverable status.  A communication outage ends
+    when any GroupStatus message is received with an okay status.
+
+    When the communication outage occurs (and if this parameter is set
+    to True), the Source Distributor/ADH removes the server from the TREP
+    network.  The server maintains its connection to the source
+    application and its cache-list and data cache.  When the
+    communication outage has been corrected, the source distributor
+    re-initializes the server.
+
+    Note that when an outage occurs, adhmon/adhmon will continue to
+    show the server as active (even though the server has been
+    removed from the network) because adhmon/adhmon monitors
+    (primarily) the status of the server's connection with the
+    source application.  The managed variable "consumers" in the
+    server attributes display indicates whether the server exists
+    on the network (1 consumer if on the network, 0 consumers if
+    not).
+
+    Also note that the name of this parameter relates to its original
+    implementation, which dismounted from the source application
+    when an outage occurred.
+
+    Default value: False
+#end
+
+
+     *<serviceName>*discourageRequestsOnOutage: { True, False }
+
+@A@G@S@LTrue,False@True@DISCOURAGE REQUESTS ON OUTAGE@ *"${svc}"*discourageRequestsOnOutage : True
+#help
+
+    discourageRequestsOnOutage: { True, False }
+
+    This parameter specifies whether the source distributor will
+    raise a server's loadLevel to discourage requests for new items
+    during a communication outage.
+
+    When commLinks are configured, communication outage detection is
+    based on link status.  A communication outage begins when any
+    communication link goes bad.  The communication outage ends when
+    all links are good.  A communication link is considered as good,
+    if all groups belonging to that link have a status of okay,
+    recovering, or unknown.  A communication link is considered as
+    bad if at least one of its groups has a status of stale, closed
+    or closed_recover.
+
+    When commLinks are not configured, communication outage detection
+    is based on group status messages alone.  A communication outage
+    begins when any GroupStatus message is received with a stale,
+    closed, or closed_recoverable status.  A communication outage ends
+    when any GroupStatus message is received with an okay status.
+
+    When the communication outage occurs (and this parameter is set
+    to True), the Source Distributor/ADH will raise the server's load factor
+    to the maximum possible and publish the new load on the network.
+    This encourages sinks to make requests (for new items) to other
+    servers on the network that have lower load factors.
+
+    Note that the loadLevel is not altered for applications that
+    publish their own load factor.
+
+    Default value: True
+#end
+
+
+
+    *<serviceName>*serviceDumpFile:
+
+@A@MN@S@N@@SERVICE DUMP FILE@ *"${svc}"*serviceDumpFile :
+#help
+
+    serviceDumpFile: { path and file name }
+
+    Specifies the location and name for dump file of this service.
+    This parameter is used when "dump" variable in adhmon/adhmon
+    (Service Statistics -> Attributes) is changed to "True".
+
+    Default value: ./<serviceName>_adh.dump or ./<serviceName>_adh.dump 
+#end
+
+   *<serviceName>*serviceCacheDumpFile:
+
+@A@MN@S@N@@SERVICE CACHE DUMP FILE@ *"${svc}"*serviceCacheDumpFile :
+#help
+
+    serviceCacheDumpFile: { path and file name }
+
+    Specifies the location and name of the data cache dump file of
+    this service. This parameter is used when the following command
+    is run:
+
+         adhmon -dumpData <filename>
+         adhmon -dumpData <filename>
+
+    <filename> is the input file containing the list of item names
+    to be dumped. If <filename> is "all" (case insensitive), data
+    for all cached items within the service will be dumped.
+
+    <serviceName> is name of the service to dump the data cache from.
+    If the -service option is not specified, the Source Distributor/ADH
+    will dump the data cache for the specified items across all services.
+
+    Default value: ./<serviceName>_adh_cache.dump or 
+					./<serviceName>_adh_cache.dump
+#end
+
+   *<serviceName>*dumpAccessLockFileName:
+
+@A@MN@S@N@@CACHE ITEMS ACCESS LOCK DUMP FILE@ *"${svc}"*dumpAccessLockFileName :
+#help
+
+    dumpAccessLockFileName: { path and file name }
+
+    Specifies location and name for the cache items access lock dump file of
+	this service.  This parameter is used when "dumpAccessLock" variable in
+	adhmon/adhmon (Service Statistics -> Attributes) is changed to "True".
+	ADH appends the source item thread index to the output dump file when
+	multiple source item threads are in use.
+
+    Default value: ./<serviceName>_adh_pe.dump or
+				   ./<serviceName>_adh_pe.dump<.sourceItemThreadIndex>
+#end
+
+@A@MN@S@LTrue,False@True@CREATE DACS SERVICE LOCK@ *"${svc}"*createDacsServiceLock : False
+#help
+    createDacsServiceLock: { True, False }
+
+    If this parameter is set to True, a DACS service lock will be created for a
+    source application that did not provide its own lock. This would enable 
+    DACS to permission applications like broker feeds through DTS.
+
+    Default value: False
+#end
+
+@A@MN@S@LTrue,False@False@CREATE ACCESS LOCKS@ *"${svc}"*createAccessLocks : False
+#help
+    createAccessLocks: { True, False }
+
+    When this parameter is set to True, a DACS lock will be created and cached for
+    each item from parsing the payload for FID 1 (PROD_PERM). This is supported for
+    both Marketfeed and RWF (Field List) providers and publishers. There will be
+    some performance impact when enabling this feature within the ADH.
+
+    Default value: False
+#end
+
+@A@MN@S@LTrue,False@False@CREATE LOCK FOR PE ZERO@ *"${svc}"*createLockForPEZero : False
+#help
+    createLockForPEZero: { True, False }
+
+    When createAccessLocks is set to True, this parameter indicates whether to create
+    a DACS lock for an item which contains a value of 0 within FID 1 (PROD_PERM).
+
+    Default value: False
+#end
+
+@A@MN@S@LTrue,False@False@CREATE INSERT LOCKS@ *"${svc}"*createInsertLocks : False
+#help
+    createInsertLocks: { True, False }
+
+    When this parameter is set to True, a DACS lock will be created for each SSL insert
+    from parsing the Marketfeed payload for FID 1 (PROD_PERM). ADS will internally force
+    this parameter to True when DACS publishing rules are enabled for the service . There
+    will be some performance impact when enabling this feature within the ADS.
+
+    Default value: False
+#end
+
+    ---------------------------------------------------
+    Item management options:
+    ---------------------------------------------------
+
+    *<serviceName>*blockedItemsFile: 
+
+@A@G@S@N@@BLOCKED ITEM FILE NAME@ *"${svc}"*blockedItemsFile : 
+#help
+
+    blockedItemsFile:
+
+    This is an optional parameter.
+    If this parameter is defined, it must specify the path name (full or
+	relative) of a 'blocked items' file.  All users on the system will be 
+	unable to open any item specified in this file. If this parameter is 
+	not defined, normal open processing will be performed.
+
+    This file must contain one item name per line, followed by optional 
+	parameters. Regular expressions are allowed; see installation manual.
+	The default domain is MARKET PRICE, unless specified.  See the install
+	manual for allowed domains.
+
+	Format:  <itemName>  [D:<domain>]
+
+    Default value: /var/reuters/rmds/blockeditems_file
+
+    Note: It is recommended that this file name incorporate the service name
+          so as to avoid accidentally sharing the same file name used by 
+          another service.
+#end
+
+
+    *<serviceName>*itemPriorityFile: 
+
+@A@G@S@N@@ITEM PRIORITY FILE NAME@ *"${svc}"*itemPriorityFile : 
+#help
+
+    itemPriorityFile:
+
+    This is an optional parameter.
+    If this parameter is defined, it must specify the path name (full or
+    relative) of an 'item priority' file. This file must contain one item entry
+    per line having the following format:
+
+        <itemName>  [D:<domain>] <priority_class>
+
+    where each token is separated by a blank space.  The default domain is MARKET
+	PRICE, unless otherwise specified.  See the install manual for allowed domains.
+
+    With respect to a user request:
+
+    1) If the requested item is specified in the 'itemPriorityFile', the
+    Sink Open priority class will be set to the priority class assigned to
+    this item by this file.
+
+    2) If the requested item is NOT specified in the 'itemPriorityFile':
+        a) If the user request contains the default priority (class 1, count 1)
+           and a 'defaultPriorityClass' is defined for this user/service
+           combination (this parameter is specified in the ssluser.cpd
+           file), the Sink Open priority class will be set to the
+           'defaultPriorityClass' value.
+        b) Otherwise, the Sink Open priority class will be set to the priority
+           class provided in the user request with the following exceptions:
+           i)  If a 'maxPriorityClass' is defined for this user/service
+               combination (this parameter is specified in the ssluser.cpd
+               and the priority class provided in the user request exceeds
+               this value, the Sink Open priority class will be set to the
+               'maxPriorityClass' value.
+           ii) If a 'maxPriorityClass' is NOT defined for the given 
+               user/service combination and the priority class provided in 
+               the user request is equal to or greater than 
+               the 'lockedItemThreshold' for the service, the Sink Open 
+               priority class will be set to the value 
+               (lockedItemThreshold - 1).
+
+    Default value: 
+
+    Note: If defined, the 'defaultPriorityClass' and 'maxPriorityClass'
+          parameters must be set to a value less than the 'lockedItemThreshold'
+          defined for the service.
+          If defined, it is recommended that the 'itemPriorityFile' name
+          incorporate the service name so as to avoid accidentally sharing the
+          same file name used by another service.
+#end
+
+
+    *<serviceName>*recoverItemsOnClose: { True, False }
+
+@A@G@S@LTrue,False@False@RECOVER ITEMS ON CLOSE@ *"${svc}"*recoverItemsOnClose : False
+#help
+
+    recoverItemsOnClose: { True, False }
+
+    This parameter determines whether the p2ps will recover items from a
+    service if one of its items has been closed.  With only one p2ps on
+    the network, items should be rerequested on a close since there is 
+    probably an open cache slot on the server.  However, with multiple sinks
+    on the network, that open cache slot could be filled with a request from
+    another sink and further requests may cause more items to be preempted.
+
+    Default value: False
+#end
+
+    ---------------------------------------------------
+     Service specific parameters for Marketfeed Services only
+     Delete these for non Marketfeed page services.
+    ---------------------------------------------------
+
+    *<serviceName>*expandedEnumFields: { True, False }
+
+!***************************************************************************
+! IMPORTANT:
+!
+! "expandedEnumFields" parameter SHOULD be set if app provides marketfeed
+! data and "cacheLocation" is set to "ssl".
+!***************************************************************************
+@A@G@S@LTrue,False@True@EXPANDED ENUM FIELDS@ *"${svc}"*expandedEnumFields : True
+#help
+
+    expandedEnumFields:  { True, False }
+
+    This parameter is applicable only if the service provides marketfeed
+    data and the cacheLocation parameter is set to "ssl".
+
+    This parameter controls the size allocated for enumerated fields
+    in the SSL infrastructure (e.g. source distributor) cache.  For each
+    enumerated field, the Master Fid List defines, by FID (field ID), an
+    enumerated (normal) length and an expanded length.
+
+    If set to True, the cache will set the maximum size of each enumerated
+    field as the larger of the enumerated length and the expanded length.
+    This prevents field truncation in the case where the source application
+    expands enumerated fields (for example, the AMS can be configured to
+    expand enumerated fields).  This is the algorithm used by SSL3.X for
+    maximum field size. 
+
+    If set to False, the cache will set the maximum size of each enumerated
+    field as the enumerated (normal) length.
+
+    Default value: True
+#end
+
+
+
+    *<service_name>*headlinePermissioning : { True, False }
+@A@G@S@LTrue,False@True@HEADLINE PERMISSIONING@ *"${svc}"*headlinePermissioning : True
+#help
+
+    headlinePermissioning: { True, False }
+
+    This parameter determines whether the p2ps will send updates for 
+    the item names in the config parameter list newsNameList(see below) for 
+    this service to users if they pass the permission checks contained within 
+    the update.  
+
+    Default value: True
+#end
+
+	*<service_name>*newsNameList : N2_UBMS
+@A@G@S@N@N2_UBMS NFCP_UBMS@NEWS NAME LIST@ *"${svc}"*newsNameList : N2_UBMS NFCP_UBMS
+
+#help
+
+    newsNameList: N2_UBMS NFCP_UBMS
+
+    A list of item names for this service that will be checked for 
+    headline permissioning. 
+
+    Default value: N2_UBMS NFCP_UBMS
+#end
+
+
+*<service_name>*overrideLockServiceId : True
+
+@A@G@S@LTrue,False@True@OVERRIDE LOCK SERVICE ID@ *"${svc}"*overrideLockServiceId : True
+
+#help
+
+    overrideLockServiceId: { True, False }
+
+    This parameter indicates whether the Source Distributor/ADH should replace
+    the service ID within the DACS access lock with the local service ID,
+    if they are different and the lock is not compounded.
+
+    This must be disabled for DTS and other services that are republishing
+    data where permissioning must be performed against the original service.
+
+    Default value: True
+#end
+
+    ----------------------------------------------------------
+     Service specific parameters for ANSI Page Services only
+    ----------------------------------------------------------
+     Unless you have the highly unlikely case of an ANSI page
+     provider, delete these parameters
+    ----------------------------------------------------------
+
+    *<serviceName>*rowsInPage: 25
+@A@G@N@N@25@MAX. ANSI PAGE ROWS@ *"${svc}"*rowsInPage : 25
+#help
+
+    rowsInPage:  { 1 - N }
+
+    This parameter is applicable only if the service provides page-based data.
+    This parameter specifies the number of rows contained in a page.
+
+    Default value: 25
+#end
+
+
+    *<serviceName>*columnsInPage: 80
+
+@A@G@N@N@80@MAX. ANSI PAGE COLUMNS@ *"${svc}"*columnsInPage : 80
+#help
+
+    columnsInPage:  { 1 - N }
+
+    This parameter is applicable only if the service provides page-based data.
+    This parameter specifies the number of columns contained in a page.
+
+    Default value: 80
+#end
+
+
+    *<serviceName>*clearScreenOnPreemption: { Yes, No }
+
+@A@G@S@LYes,No@No@SEND CLEAR SCREEN AFTER PREEMPTION@ *"${svc}"*clearScreenOnPreemption : No 
+
+#help
+
+    clearScreenOnPreemption:  { Yes, No }
+
+    This parameter is applicable only if the service provides page-based data.
+    Indicates whether a clear screen update should be sent to the network
+    when an item is preempted.
+
+    Default value: No
+#end
+
+
+    *<serviceName>*clearScreenOnComFault: { Yes, No }
+
+@A@G@S@LYes,No@No@SEND CLEAR SCREEN AFTER COMMS FAULT@ *"${svc}"*clearScreenOnComFault : No
+#help
+
+    clearScreenOnComFault:  { Yes, No }
+
+    This parameter is applicable only if the service provides page-based data.
+    Indicates whether a clear screen update should be sent to the network
+    when a communication fault occurs.
+
+    Default value: No
+#end
+
+
+    ---------------------------------------------------
+     Service-specific configuration parameters for
+     Hot Standby capability
+    ---------------------------------------------------
+
+!This parameter is not needed in this file because thotstdbyadd (the utility
+!to configure a hot standby server pair) will create it.
+!@A@G@S@@@HOT STANDBY SERVER PAIRS@ *"${svc}"*activeStandbyPairs : 
+!#help
+!    activeStandbyPairs: ServerId1 ServerId2 HSGroupId1
+!                        [; ServerId3 ServerId4 HSGroupId2 [;..] ]
+!
+!    This parameter defines the active standby pairs and assigns a hot
+!    standby group identifier to each pair. The adh/ADH specific
+!    enableHotStandby configuration parameter must be set to True for this 
+!    parameter to be used.
+!
+!    Default value: none
+!#end
+
+
+@A@G@N@@1@HOT STANDBY HEARTBEAT INTERVAL@ *"${svc}"*hotStandby*heartbeat : 1
+#help
+
+    heartbeat: { 1 - max integer  }
+
+    This parameter specifies the interval, in seconds, a hot standby
+    heartbeat message is sent to the peer server.
+
+    Default value: 1
+#end
+
+
+@A@G@N@@3@HOT STANDBY TIMEOUT@ *"${svc}"*hotStandby*timeout : 3
+#help
+
+    timeout: { 1 - max timeout  }
+
+    This parameter specifies the interval, in seconds, a peer is timed out
+    after not receiving any messages.
+
+    Default value: 3
+#end
+
+
+@A@G@N@@10@HOT STANDBY LEARN TIME@ *"${svc}"*hotStandby*learnTime : 10
+#help
+
+    learnTime: { 5 - max learn time  }
+
+    This parameter specifies the interval, in seconds, a starting server(s)
+    waits to see its peer before declaring itself active.
+
+    Default value: 10.  
+#end
+
+
+@A@MN@N@@1@HOT STANDBY TEMPORAL DIFFERENCE@ *"${svc}"*hotStandby*temporalDifference : 1
+#help
+
+    temporalDifference: 1
+
+    This parameter specifies the maximum difference, in seconds, that two hot
+    standby source managers/datafeeds are off.
+
+    Default value: 1
+#end
+
+
+@A@MN@N@@5000@HOT STANDBY MAX UPDATE RATE@ *"${svc}"*hotStandby*maxUpdateRate : 5000
+#help
+
+    maxUpdateRate: { 0 - max integer  }
+
+    This parameter specifies the maximum update rate generated by any
+    of two hot standby source managers/datafeeds.
+
+    Default value: 5000
+#end
+
+
+@A@MN@N@@180@HOT STANDBY RETRY TIME@ *"${svc}"*hotStandby*retryTime : 180
+#help
+
+    retryTime: { 1 - max integer  }
+
+    This parameter specifies the interval, in seconds, between re-open
+    attempts of failed items on the standby server for items that are
+    open on the active server.
+
+    Default value: 180
+#end
+
+
+@A@MN@S@LTrue,False@True@STANDBY FORWARD INSERT TO SOURCE APPL.@ *"${svc}"*hotStandby*standbyForwardInsertToSrcApp : True
+#help
+
+    standbyForwardInsertToSrcApp: { True, False }
+
+    This parameter indicates whether the standby server sends an insert
+    request to the source application. If False, the standby server will
+    update the insert statistics but it will not forward the insert request
+    to the source application.
+
+    Default value: True
+#end
+
+
+
+!***************************************************************************
+! IMPORTANT:
+!
+! "forwardServerMode" parameter SHOULD be set if appropriate.
+!***************************************************************************
+@A@G@S@LFalse,True@False@FORWARD SERVER MODE MSG@ *"${svc}"*forwardServerMode : False
+#help
+
+    forwardServerMode: { True, False }
+
+	This parameter specifies whether SrcDist/ADH will forward hot standby operational
+    mode (active with peer, active without a peer, standby) informational message to the
+	source application. This parameter should be set to True only for SSL based services
+	written specifically to expect this information.
+
+    Default value: False
+#end
+
+
+@A@MN@N@N@20@MAX OPER DURING FAILOVER@ *"${svc}"*maxOperDuringFailover : 20
+#help
+
+    maxOperDuringFailover : 20
+
+    The maxOperDuringFailover parameter specifies the number of failover
+    operations performed atomically by the standby before going on to
+    perform other tasks (process updates for example).  As this value
+    increases:
+        1. Failover occurs more quickly
+        2. The update latency increases (only during failover).
+    If the maxOperDuringFailover is set too high (greater than ~1000), high
+    updating servers may become disconnected.
+
+    Default value: 20
+#end
+
+
+@A@MN@S@LTrue,False@True@ENABLE AUTOFAILBACK@ *"${svc}"*HSAutoFailback*enable : True
+#help
+
+    HSAutoFailback*enable : { True, False }
+
+    This parameter controls whether the hotstandby auto failback feature
+    is enabled.  If true, the active and standby servers open a separate
+    communication channel (independent of backbone traffic) to exchange
+    status messages at the same rate as the normal HS heartbeat messages.
+
+    A temporary disconnection between the active and standby servers can
+    result in a load-balanced pair of active servers.  The auto failback
+    feature forces the load-balanced pair back into a source-mirrored
+    pair after network connectivity is restored.
+
+    Default value: True
+#end
+
+
+@A@MN@S@N@mdhnet 238.3.3.3 9093@AUTO FAILBACK CHANNEL@ *"${svc}"*HSAutoFailback*network : mdhnet;238.3.3.3|9093|
+#help
+
+    HSAutoFailback*network :
+
+    This parameter defines the multicast channel used for HS auto failback.
+    The status message is exchanged on this channel at the rate of HS
+    regular heartbeat. This channel opened via RV when RV is the transport 
+    daemon on the backbone. Otherwise, it's a UDP connection when RRCPD is
+    the backbone transport daemon.
+
+    Part 1 - Network. Network can be specified as: 1) "Network name" or
+    "Host name" in network database such as NIS or a flat file such as
+    "networks"/"hosts" respectively, 2) "Interface name" known to
+    ifconfig or netstat, 3) "Host IP number" or "Network IP number" in
+    dotted-decimal notation. If a network part is not specified, the
+    interface which corresponds to the host name of the system as
+    determined by function gethostname() is used. It is recommended to
+    specify network as "mdhnet" in the "/etc/networks" file.
+
+    Part 2 - Multicast Group To Join. One multicast group to join, 
+    specified as valid IP addresses.
+
+    Part 3 - Send Address. Should always be empty, will default to the
+    same address as Part 2, multicast group to join.
+    
+    Part 4 - UDP Service.  UDP service can be specified as: 1) "Service
+    name" in network database such as NIS, DNS or a flat file such as
+    "services", 2) "Port number" such as 7500. If service is not
+    specified, the service name "rendezvous" is used if defined in the
+    network database, otherwise the udp port 7500 is used as default.
+
+    When RV is the transport daemon on the backbone, this channel will
+    attempt to connect to RV daemon at "tcp:7500".
+
+    Default value: mdhnet;238.3.3.3|9093|
+#end
+
+
+@A@MN@N@R10,180@60@FAILBACK DECISION TIME@ *"${svc}"*HSAutoFailback*decisionTime : 60
+#help
+
+    HSAutoFailback*decisionTime:
+
+    This parameter specifies the interval, in seconds, checking the
+    peer server state before forcing the load-balanced pair back into
+    a source-mirrored pair after network connectivity is restored.
+
+    Default value: 60
+#end
+
+@A@MN@S@LTrue,False@False@USE P2P FOR HOTSTANDBY HEARTBEAT@ *"${svc}"*useP2PForHotStandbyHeartbeat : False
+#help
+
+    useP2PForHotStandbyHeartbeat: { True, False }
+
+    This parameter specifies transmission mode of heartbeat message
+    between a hotstandby server pair. It can be either point to point
+    or broadcast.
+
+    Default value: False
+#end
+
+
+
+
+@A@G@S@N@REALTIME@QOS TIMELINESS@ *"${svc}"*qosTimeliness : REALTIME
+#help
+    qosTimeliness: { REALTIME, DELAYED, DELAYED_UNKNOWN }
+
+    Quality of Service
+
+    For Source Distributor/ADH 6.0, this parameter will be read for services
+    sourced over an SSL route. For services sourced over an RSSL route, the
+    Source Distributor/ADH will always use the QoS advertised in the upstream
+    source directory, unless overrideProviderQos is True.
+
+    For P2PS 6.0, this parameter will only be read for RRMP4 servers. For
+    RRMP6 servers, the P2PS will always use the QoS advertised on the ADH
+    by the 6.0 Source Distributor/ADH.
+
+    This parameter defines the static QoS timeliness for the service that
+    will be advertised to downstream RSSL client applications within the
+    source directory and used for request routing across the backbone.
+
+    Default value: REALTIME
+#end
+
+
+@A@G@N@N@0@QOS TIME INFO@ *"${svc}"*qosTimeInfo : 0
+#help
+    qosTimeInfo: { 1 - n seconds for delayed }
+
+    Quality of Service
+
+    Applicable only when qosTimeliness is set to DELAYED.
+
+    For Source Distributor/ADH 6.0, this parameter will be read for services
+    sourced over an SSL route. For services sourced over an RSSL route, the
+    Source Distributor/ADH will use the QoS advertised in the upstream
+    source directory, unless overrideProviderQos is True.
+
+    For P2PS 6.0, this parameter will only be read for RRMP4 servers. For
+    RRMP6 servers, the P2PS will always use the QoS advertised on the ADH
+    by the 6.0 Source Distributor/ADH.
+
+    This parameter defines the static QoS time information in seconds for
+    the service that will be advertised to downstream RSSL client applications
+    within the source directory and used for request routing across the 
+    backbone.
+
+    Default value: 0
+#end
+
+
+@A@G@S@N@TICK_BY_TICK@QOS RATE@ *"${svc}"*qosRate : TICK_BY_TICK
+#help
+    qosRate: { TICK_BY_TICK, JIT_CONFLATED, TIME_CONFLATED }
+
+    Quality of Service
+
+    For Source Distributor/ADH 6.0, this parameter will be read for services
+    sourced over an SSL route. For services sourced over an RSSL route, the
+    Source Distributor/ADH will use the QoS advertised in the upstream
+    source directory, unless overrideProviderQos is True.
+
+    For P2PS 6.0, this parameter will only be read for RRMP4 servers. For
+    RRMP6 servers, the P2PS will always use the QoS advertised on the ADH
+    by the 6.0 Source Distributor/ADH.
+
+    This parameter defines the static QoS rate for the service that will be
+    advertised to downstream RSSL client applications within the source
+    directory and used for request routing across the backbone.
+
+    Default value: TICK_BY_TICK
+#end
+
+
+@A@G@N@N@0@QOS RATE INFO@ *"${svc}"*qosRateInfo : 0
+#help
+    qosRateInfo: { 1 - n milliseconds for time conflated }
+
+    Quality of Service
+
+    Applicable only when qosRate is set to TIME_CONFLATED.
+
+    For Source Distributor/ADH 6.0, this parameter will read for services
+    sourced over an SSL route. For services sourced over an RSSL route, the
+    Source Distributor/ADH will use the QoS advertised in the upstream
+    source directory, unless overrideProviderQos is True.
+
+    For P2PS 6.0, this parameter will only be read for RRMP4 servers. For
+    RRMP6 servers, the P2PS will always use the QoS advertised on the ADH
+    by the 6.0 Source Distributor/ADH.
+
+    This parameter defines the static QoS rate information in milliseconds
+    for time conflation or in seconds for periodic refresh for the service
+    that will be advertised to downstream RSSL client applications within
+    the source directory and used for request routing across the backbone.
+
+    Default value: 0
+#end
+
+
+@A@G@S@LTrue,False@False@OVERRIDE PROVIDER QOS@ *"${svc}"*overrideProviderQos : False
+#help
+    overrideProviderQos: { True, False }
+
+    Override Provider Quality of Service
+
+    Applicable only for RSSL source applications.
+
+    For ADH, this parameter will be read for services sourced over an RSSL route. 
+    For services sourced over an SSL route, it is not necessary to set this 
+    parameter as the ADH will always read QoS information from the config file.
+
+	When True, this parameter will override the QoS information received
+	from the source with the information read from configuration file. The 
+	following parameters should be configured when overrideProviderQos is True:
+	qosTimeliness, qosTimeInfo, qosRate, and qosRateInfo.
+
+    Default value: False
+#end
+
+
+
+*******************************************************************
+ Record Augmentation Capability Parameters 
+
+ IMPORTANT:
+ Unless app supports record augmentation, delete those parameters.
+
+*******************************************************************
+
+ *<serviceName>*contribFieldList :
+
+@A@MN@S@N@@CONTRIBUTED FIELD LIST@ *"${svc}"*contribFieldList :
+#help
+
+    contribFieldList : [<FID1> <value1>], [<FID2> <value2>], 
+
+    A comma-separated list of the client contributed FIDs and the 
+    associated default values that will be augmented to records on the fly.
+    
+    For example:
+
+    *IDN_RDF*contribFieldList : -10021 "-", -10022 "VALUE OF -10022"
+    
+    or
+
+    *IDN_RDF*contribFieldList:  \
+            -10021 - , \
+            -10022 - , \
+            -10023 - , \
+            -10024 " / / " , \
+            -10025 " / / " , \
+            -10026 " all is well"
+
+    Note: Escape character is used to split long lines across multiple lines
+
+    If a field contains space, tab, comma, escape or double quotation
+    characters, it must be delimited by double quotation marks.  Escape and
+    double quotation mark characters within the field must be escaped using
+    escape character. In order to insert escape character into the field, 4 
+    escape characters are required. For example:
+
+    *IDN_RDF*contribFieldList : -10021 " metacharacters test \\\\ \\" " , ...
+
+    Note : FIDs must be presented in RDMFieldDictionary otherwise Record 
+           Augmentation Capability will be disabled.
+
+    If the associated values of the specified FIDs need to be assigned to 
+    an individual instrument, the instrument name and the 
+    values for each contributed FID must be listed in the contributed data file 
+    named "<serviceName>.contrib". 
+
+    For example:  The contributed data file of IDN_RDF, IDN_RDF.contrib
+     
+    RTR.L "VALUE OF -10021 FOR RTR.L" "VALUE OF -10022 FOR RTR.L"
+
+    Note that the order of the field values in the contributed data 
+    file must be the same as the order of FIDs configured under 
+    contribFieldList.
+
+    Default value : None
+#end
+
+
+ *<serviceName>*contribExchangeFieldList :
+
+@A@MN@S@N@@CONTRIBUTED FIELD LIST FOR EXCHANGE@ *"${svc}"*contribExchangeFieldList :
+#help
+
+    contribExchangeFieldList : [<FID1> <value1>], [<FID2> <value2>], 
+
+    A comma-separated list of the client contributed FIDs and the 
+    associated default values that will be augmented to records with particular
+    exchange on the fly.
+    
+    For example:
+
+    *IDN_RDF*contribExchangeFieldList : -10021 "-", -10022 "VALUE OF -10022"
+    
+    or
+
+   *IDN_RDF*contribExchangeFieldList:  \
+            -10021 - , \
+            -10022 - , \
+            -10023 - , \
+            -10024 " / / " , \
+            -10025 " / / " , \
+            -10026 " all is well"
+
+    Note: Escape character is used to split long lines across multiple lines
+
+    If a field contains space, tab, comma, escape or double quotation
+    characters, it must be delimited by double quotation marks.  Escape and
+    double quotation mark characters within the field must be escaped using
+    escape character. In order to insert escape character into the field, 4 
+    escape characters are required. For example:
+
+    *IDN_RDF*contribExchangeFieldList : \
+             -10021 " metacharacters test \\\\ \\" " , ...
+
+    Note : FIDs must be presented in RDMFieldDictionary otherwise Record 
+           Augmentation Capability will be disabled.
+
+    If the associated values of the specified FIDs need to be assigned to 
+    an individual instrument, the instrument name and the 
+    values for each contributed FID must be listed in the contributed data file 
+    named "<serviceName>.exchange.contrib". 
+
+    For example: The contributed data file of IDN_RDF, IDN_RDF.exchange.contrib
+     
+    .N "VALUE OF -10021 FOR EXCHANGE N" "VALUE OF -10022 FOR EXCHANGE N"
+
+    Note that the order of the field values in the contributed data 
+    file must be the same as the order of FIDs configured under 
+    contribExchangeFieldList.
+
+    Default value : None
+#end
+
+
+ *<service_name>*contribDataFileDirectory : .
+
+@A@MN@S@N@.@CONTRIBUTED DATA FILE DIRECTORY@ *"${svc}"*contribDataFileDirectory : .
+#help
+
+    contribDataFileDirectory : 
+
+    This parameter indicates where all contributed data files are located.
+
+    Default value : .
+#end
+
+
+ *<service_name>*contribMaxUpdateRate : 5000
+
+@A@MN@N@N@5000@MAX UPDATE RATE OF CONTRIBUTED DATA@ *"${svc}"*contribMaxUpdateRate : 5000
+#help
+
+    contribMaxUpdateRate :
+
+    This parameter specifies maximum update rate that can result due to
+    reloading of the contributed data file. 
+
+    Default value : 5000
+#end
+
+
+ *<service_name>*contribMinUpdateRate : 500
+
+@A@MN@N@N@500@MIN UPDATE RATE OF CONTRIBUTED DATA@ *"${svc}"*contribMinUpdateRate : 500
+#help
+
+    contribMinUpdateRate :
+
+    This parameter specifies minimum update rate that can result due to
+    reloading of the contributed data file. 
+
+    If update rate due to reloading of the contributed data file exceed
+    contribMinUpdateRate value, all instrument requests and datafeed
+    updates are processed at the higher priority than the priority of file 
+    reload. If not, datafeed updates, instrument requests and reloading
+    of the contributed data file are processed at the same priority.
+
+    Default value : 500
+#end
+
+
+ *<service_name>*contribPositiveTemplateIdList : 
+
+@A@MN@S@N@@POSITIVE TEMPLATE ID LIST@ *"${svc}"*contribPositiveTemplateIdList :
+#help
+
+    contribPositiveTemplateIdList :
+
+    This parameter is a comma-separated list of template IDs. If the 
+    instruments use template ID which matches one of the template IDs listed 
+    under contribPositiveTemplateIdList, its record image from source 
+    application will be augmented by the client specified FIDs and the default 
+    associated values which are configured under contribFieldList.
+        
+    Note : If an instrument is listed in the contributed data file 
+           (<serviceName>.contrib), its template ID is ignored and associated 
+           values from the file will be augmented to the record image.  
+
+    Default value : None
+#end
+
+
+ *<service_name>*contribNegativeTemplateIdList : 80, 85
+
+@A@MN@S@N@80, 85@NEGATIVE TEMPLATE ID LIST@ *"${svc}"*contribNegativeTemplateIdList : 80, 85
+#help
+
+    contribNegativeTemplateIdList :
+
+    This parameter is a comma-separated list of template IDs. If the 
+    instruments do not use template ID which is listed under 
+    contribNegativeTemplateIdList, its record image from source application 
+    will be augmented by the client specified FIDs and the default associated 
+    values which are configured under contribFieldList.
+        
+    This parameter is considered when contribPositiveTemplateIdList is empty 
+    only.  
+
+    Default value : 80, 85
+#end
+
+
+ *<service_name>*contribInsertRTL : False
+
+@A@MN@S@LTrue,False@False@INSERT RTL@ *"${svc}"*contribInsertRTL : False
+#help
+
+    contribInsertRTL : { True, False }
+    
+    This parameter indicates whether an empty RTL field is inserted 
+    into the Marketfeed header. If it is set to True, an empty RTL field
+    will be inserted into the Marketfeed header.
+
+    Default value : False
+#end
+
+
+        *"${svc}"*convertVerifyNoSyncToCorrection : True
+@B@MN@S@LTrue,False@True@CONVERT VERIFY NoSync TO CORRECTION@*"${svc}"*convertVerifyNoSyncToCorrection: True
+
+#help
+        convertVerifyNoSyncToCorrection: {True, False}
+
+        When converting from RWF to Marketfeed, this parameter controls
+        whether to convert partial unsolicited RSSL refresh messages to
+        Marketfeed CORRECTION (317) updates (True) or Marketfeed VERIFY
+        NOSYNC (318 VER_SUB 4) images (False).
+
+        Default value: True
+
+#end
+
+
+    *"${svc}"*enableOverrideInsertRecordResp : False
+@B@MN@S@LTrue,False@False@CONVERT RECORD RESPONSE TO VERIFY RECORD@*"${svc}"*enableOverrideInsertRecordResp: False
+
+#help
+    enableOverrideInsertRecordResp: {True, False}
+
+    This parameter controls the conversion of RECORD RESPONSE message
+    (340) to VERIFY RECORD (318) for SSL Inserts.
+
+    Default value: False
+
+#end
+
+    ---------------------------------------------------
+     Service-specific configuration parameters for
+     Cache Resiliency
+    ---------------------------------------------------
+
+@B@MN@S@N@@CACHE RES HOST LIST@ *"${svc}"*CacheResiliency*hostList :
+#help
+
+    hostList : [host1], [host2], 
+
+    A comma-separated list of hosts to connect for cache download of this 
+    service.
+    
+    The ADH/ADS specific supportCacheResiliency configuration parameter 
+    must be set to True for this parameter to be used.
+    
+    For example:
+
+    *IDN_RDF*CacheResiliency*hostList : host1, host2
+
+    Default value : None
+#end
+!
+!
+*<serviceName>*CacheResiliency*port :
+
+
+@B@MN@S@N@9101@CACHE RES PORT@ *"${svc}"*CacheResiliency*port :
+#help
+
+    port : [port], 
+
+    The port to connect for cache download of this service.
+    
+    The ADH/ADS specific supportCacheResiliency configuration parameter 
+    must be set to True for this parameter to be used.
+    
+    For example:
+
+    *IDN_RDF*CacheResiliency*port : 9101
+
+    Default value : 9101
+#end
+
+	---------------------------------------------
+	Service configuration parameters for Persistent Cache
+	---------------------------------------------
+@B@MN@S@LTrue,False@True@PERSISTENT RESTORE AS STALE@ *"${svc}"*persistentRestoreAsStale :
+#help
+
+	persistentRestoreAsStale: True, False
+
+	Determines if images stored in persistent cache file will be loaded as
+	activeStale or activeOkay.  Images will be loaded as activeStale when
+	set to True.  The persistent cache feature must be enabled in order
+	to load images.
+
+	Default value: True
+#end
+
+    *<serviceName>*overrideDoNotConflate: False
+    
+@A@MN@S@LTrue,False@False@OVERRIDE DO_NOT_CONFLATE FLAG@ *"${svc}"*overrideDoNotConflate : False
+#help
+
+    overrideDoNotConflate: { True, False }
+
+    Specifies overriding DO_NOT_CONFLATE flag in RWF update message of this service.
+
+    Default value: False
+#end
+    *<serviceName>*enablePublisherAugmentation : False
+@A@MN@S@LTrue,False@False@ENABLE PUBLISHER AUGMENTATION@ *"${svc}"*enablePublisherAugmentation : False
+    *<serviceName>*publisherAllowedFieldList :
+@A@MN@S@N@@PUBLISHER ALLOWED FIELD LIST@ *"${svc}"*publisherAllowedFieldList :
+    *<serviceName>*augRemapRefreshUpdateType :
+@A@MN@N@N@@AUGMENT REMAP REFRESH UPDATE TYPE@ *"${svc}"*augRemapRefreshUpdateType :
+    *<serviceName>*augRemapUpdateType :
+@A@MN@N@N@@AUGMENT REMAP UPDATE TYPE@ *"${svc}"*augRemapUpdateType :
+    *<serviceName>*enableVisiblePublisherId: False
+
+@A@MN@S@LTrue,False@False@ENABLE VISIBLE PUBLISHER IDENTIFIER@ *adh*"${svc}"*enableVisiblePublisherId: False
+#help
+
+	enableVisiblePublisherId: { True, False }
+	
+	This parameter enables the Visible Publisher Identifier (VPI) feature for this service.
+	Note that a license is also required to operate this feature.
+
+	The VPI feature will place the unique user information from a post/insert message 
+	into the payload of a message using user-defined FIDs (vpiUserIdFID and vpiUserAddrFID).
+	The information is then stored in cache in the ADH, or forwarded to the publisher.
+	The user information is comprised of a user identifier, and an optional user 
+	address (IP address).
+
+	Default value: False
+
+#end
+
+	*<serviceName>*vpiUserIdFID: 0
+
+@A@MN@N@N@0@VPI User Identifier FID@ *adh*"${svc}"*vpiUserIdFID: 0
+#help
+
+	vpiUserIdFID: FIDValue
+
+	The vpiUserIdFID field defines the FID to be used to provide the Visible Publisher
+	Identifier (VPI) User Identifier.  The User Identifier uniquely identifies a 
+	DACS user who has permissions to send posts or inserts.  This is a 
+	user-defined FID which must be defined in the RDMFieldDictionary.  The 
+	vpiUserIdFID is mandatory for the VPI feature to work.
+
+	Default value: 0
+#end
+
+	*<serviceName>*vpiUserAddrFID: 0
+
+@A@MN@N@N@0@VPI User Address FID@ *adh*"${svc}"*vpiUserAddrFID: 0
+#help
+
+	vpiUserAddrFID: FIDValue
+
+	The vpiUserAddrFID field defines the FID to be used to provide the Visible Publisher
+	Identifier (VPI) User Address (IP address of the user machine).  This is 
+	user-defined FID which must be defined in the RDMFieldDictionary.  The 
+	vpiUserAddrFID is optional for the VPI feature to work.
+
+	Default value: 0
+#end
+    ---------------------------------------------------
+    Field Filtering
+    Service Configuration Parameters
+    ---------------------------------------------------
+
+    *adh*<serviceName>*filterField : 259
+
+@A@MN@S@N@259@FILTER FIELD@ *adh*"${svc}"*filterField : 259
+#help
+    filterField : 259
+
+    This parameter selects a FID whose value determines whether
+    filtering is to be done. You can specify it by FID number or by 
+    DDE Acronym string, e.g.:
+
+    FID number | DDE ACRONYM      | Comments
+    ----------------------------------------------------------------------
+    259        | RECORDTYPE       | Good for many uses
+    ----------------------------------------------------------------------
+    4          | IDN EXCHANGE ID  | Only 255 exchanges
+    ----------------------------------------------------------------------
+    1709       | EXCHANGE ID 2    | Extended list of exchanges
+    ----------------------------------------------------------------------
+    2          | DISPLAYTEMPLATE  | Might be useful in some cases
+    ----------------------------------------------------------------------
+
+    NOTE: Caching MUST BE ENABLED in the source distributor for FID 
+          Filtering:
+             *<serviceName>*cacheLocation : ssl
+
+    Default value: 259
+#end
+
+    *adh*<serviceName>*filterFieldValues :
+
+@A@MN@S@N@@FILTER FIELD VALUES@ *adh*"${svc}"*filterFieldValues :
+#help
+    filterFieldValues :
+
+    This parameter defines the list of values of the *filterField
+    FID for which filters will be defined.  Note that while these
+    examples appear numeric, they are treated as strings, and
+    any string value for that FID would work.  These values can
+    be used to scope the *remove and *contains parameters. 
+    The remove parameter lists the FIDs of fields that should be 
+    removed. The contains parameter lists the FIDs of fields that 
+    should be kept.
+
+
+    Default value: none
+#end
+
+

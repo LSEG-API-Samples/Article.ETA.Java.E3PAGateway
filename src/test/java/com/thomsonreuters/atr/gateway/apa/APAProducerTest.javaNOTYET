@@ -1,0 +1,191 @@
+package com.thomsonreuters.atr.gateway.apa;
+
+import com.thomsonreuters.upa.fdm.config.FixDomainJSONConfiguration;
+import com.thomsonreuters.upa.fdm.config.IFixDomainConfiguration;
+import com.thomsonreuters.upa.fdm.decoders.FrameworkMessageDecoderMap;
+import com.thomsonreuters.upa.fdm.encoders.NodeStatusMessageEncoder;
+import com.thomsonreuters.upa.fdm.messages.NodeStatusMessage;
+import com.thomsonreuters.upa.fdm.messages.NodeStatusRequestMessage;
+import com.thomsonreuters.upa.framework.client.Producer;
+import com.thomsonreuters.upa.framework.events.ReliableProducerStreamInfo;
+import com.thomsonreuters.upa.framework.events.StreamInfo;
+import com.thomsonreuters.upa.framework.exception.FrameworkException;
+import org.easymock.Capture;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.easymock.PowerMock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.Optional;
+
+
+import static org.easymock.EasyMock.*;
+import static org.junit.Assert.*;
+import static org.powermock.api.easymock.PowerMock.createMock;
+import static org.powermock.api.easymock.PowerMock.expectNew;
+
+/**
+ * Created by egoebelbecker on 12/2/2016.
+ */
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({
+        Producer.class,
+        FixDomainJSONConfiguration.class,
+        APAProducer.class,
+        ReliableProducerStreamInfo.class,
+        List.class})
+public class APAProducerTest {
+
+    private final List<Object> mocks = new ArrayList<>();
+
+    private Producer producer;
+    private FixDomainJSONConfiguration fixDomainJSONConfiguration;
+
+    private ConsumerWatchList consumerWatchList;
+    private ReliableProducerStreamInfo streamInfo1;
+    private ArrayList<String> watchListMock;
+
+    private void reset() {
+        PowerMock.resetAll(getAllMocks());
+    }
+
+    private void verify() {
+        PowerMock.verifyAll();
+    }
+
+    private void replay() {
+        PowerMock.replayAll(getAllMocks());
+    }
+
+    private void addMocks(Object... o) {
+        this.mocks.addAll(Arrays.asList(o));
+    }
+
+    private Object[] getAllMocks() {
+        return mocks.toArray();
+    }
+
+    @Before
+    @SuppressWarnings("unchecked")
+    public void setUp() throws Exception {
+        //noinspection unchecked
+        addMocks(producer = createMock(Producer.class),
+                fixDomainJSONConfiguration = createMock(FixDomainJSONConfiguration.class),
+                consumerWatchList = createMock(ConsumerWatchList.class),
+                streamInfo1 = createMock(ReliableProducerStreamInfo.class),
+                watchListMock = (ArrayList<String>) createMock(ArrayList.class));
+    }
+
+    @Test
+    public void test_construct() throws Exception {
+        this.doConstruct();
+    }
+
+    private APAProducer doConstruct() throws Exception {
+
+        // Created with class
+        expectNew(ConsumerWatchList.class).andReturn(consumerWatchList);
+        expectNew(ArrayList.class).andReturn(watchListMock);
+
+        // Config is loaded
+        expectNew(FixDomainJSONConfiguration.class, new Class[]{String.class}, eq("resources/config/muninn.json"))
+                .andReturn(fixDomainJSONConfiguration);
+
+        // Create the producer
+        expectNew(Producer.class, new Class[]{IFixDomainConfiguration.class, FrameworkMessageDecoderMap.class},
+                eq(fixDomainJSONConfiguration), isA(FrameworkMessageDecoderMap.class))
+                .andReturn(producer);
+
+
+        producer.addSubscriber(isA(APAProducer.class));
+        expectLastCall().once();
+        replay();
+
+        // And finally....
+        APAProducer muninnProducer = new APAProducer("resources/config/apa.json");
+
+        verify();
+        reset();
+        return muninnProducer;
+    }
+
+    @Test
+    public void testStreamInfoUp() throws Exception {
+
+        do_streamup();
+    }
+
+    private APAProducer do_streamup() throws Exception {
+
+        // Get the producer
+        APAProducer muninnProducer = doConstruct();
+
+        // Expect it to query the name
+        expect(streamInfo1.getUserName()).andReturn("test1").times(1);
+
+        // Expect it to the check the state of the stream we give it
+        expect(streamInfo1.getState()).andReturn(StreamInfo.StreamState.PENDING).once();
+
+        // Expect it to set it to up
+        streamInfo1.setState(and(isA(StreamInfo.StreamState.class), eq(StreamInfo.StreamState.OPEN)));
+        expectLastCall().once();
+
+        // Add it to the watchlist
+        consumerWatchList.addNode(eq("test1"), eq(streamInfo1));
+        expectLastCall().once();
+
+        List<String> names = Arrays.asList("1", "2", "3");
+
+        expect(watchListMock.iterator()).andReturn(names.iterator());
+
+        // Add to status list and get a message back
+
+        // Tell producer it's all good
+        //noinspection ConstantConditions
+        producer.processStream(eq(streamInfo1));
+        expectLastCall().once();
+
+        replay();
+
+        muninnProducer.processReliableProducerStreamInfo(streamInfo1);
+        verify();
+        reset();
+
+        return muninnProducer;
+    }
+
+    @Test
+    public void testStreamInfoDown() throws Exception {
+
+        // Get the producer
+        APAProducer muninnProducer = doConstruct();
+
+        // Expect it to query the name
+        expect(streamInfo1.getUserName()).andReturn("test1").times(1);
+
+        // Expect it to the check the state of the stream we give it
+        expect(streamInfo1.getState()).andReturn(StreamInfo.StreamState.CLOSED).once();
+
+        // Remove it from the watchlist
+        consumerWatchList.deleteNode(eq("test1"));
+        expectLastCall().once();
+
+        replay();
+
+        muninnProducer.processReliableProducerStreamInfo(streamInfo1);
+
+        // Verify it was marked down
+        //assertEquals(NodeStatusMessage.NodeState.Down, captureStatus.getValue().getState());
+
+        verify();
+        reset();
+    }
+
+}

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration debug="true">
+
+    <property name="LOG_HOME" value="/var/log/APAGateway" />
+    <!--property name="LOG_HOME" value="C:/Workspaces/APAGateway/logs" /-->
+
+    <appender name="FILEAPPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/apagateway.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %-7d{yyyy-MM-dd HH:mm:ss:SSS} [%p] [%t] %c.%M:%L %m%n
+            </Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>${LOG_HOME}/archived/apagateway.%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
+
+    </appender>
+    <appender name="JSONAPPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/json/apa-001.json</file>
+        <append>true</append>
+        <immediateFlush>true</immediateFlush>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %m%n
+            </Pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>${LOG_HOME}/json/apa.%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- this logger is dedicated to JSON -->
+    <logger name="java.awt.color.ColorSpace" level="trace" additivity="false">
+        <appender-ref ref="JSONAPPENDER" />
+    </logger>
+
+    <logger name="com.thomsonreuters" level="trace"	additivity="false">
+        <appender-ref ref="FILEAPPENDER" />
+    </logger>
+
+    <root level="trace">
+        <appender-ref ref="FILEAPPENDER" />
+    </root>
+
+</configuration>
