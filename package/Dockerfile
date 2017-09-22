@@ -1,6 +1,4 @@
 FROM centos
-#FROM nimmis/java-centos:openjdk-8-jdk
-
 
 ENV JAVA_VERSION 8u31
 
@@ -24,5 +22,3 @@ RUN dos2unix APAGateway/bin/utils.sh
 ENTRYPOINT ["APAGateway/bin/gateway.sh"]
 CMD []
 
-#CMD ["APAGateway/bin/gateway.sh", "--fixaddress 192.168.1.1 --fixport 8001 --serviceid 74 --sender APA --target AUTEX --verbose --service AUTEX_APA --nofix"]
-#CMD ["bash"]
