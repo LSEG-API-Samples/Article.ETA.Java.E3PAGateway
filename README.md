@@ -11,3 +11,16 @@ E3PA is compatible with TREP versions 2 and 3. Messages are delivered to it with
 
 # E3PA Requirements
 E3PA requires any machine running Java, with a minimum of 2GB of memory. Gradle is also required to build E3PA and pull down dependencies. Docker is required to run the Docker image if you chose that option.
+
+# Downloading and building
+Download the project that includes the E3PA Java source, build scripts and Thomson Reuters libraries on any machine running Java and Gradle.
+
+In the directory containing the file `build.gradle`, run the command `gradle makeDist`. This will create a file named `apagateway_dist.tar.gz`. This file can then be moved to the location from where the E3PA gateway will be run.
+
+# Building a Docker image
+Also included is `Dockerfile` that can be used to create a Docker image. Run `docker build -t e3pa-gateway:latest .` from the directory with the Dockerfile after you have built the project with Gradle as outlined above. This will create a Docker image that can be run.
+
+If you wish to run the image on a different machine, run `docker save -o e3pa-gateway.tar e3pa-gateway` to create a TAR file that can be moved. On the target machine run `docker load -i e3pa-gateway.tar` to create the image.
+
+In the future you will also be able to download a Docker image from [DockerHub](https://hub.docker.com/).
+
