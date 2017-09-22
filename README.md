@@ -33,16 +33,59 @@ In the future you will also be able to download a Docker image from [DockerHub](
 
   * client/omm/ -- FIX and UPA dictionaries
 
-  * rules/ -- rules.json file location
+  * rules/ -- JSON rules file location
 
   * gateway.sh -- script to start E3PA 
 
   * utils.sh -- script used by gateway.sh 
 
-
 ## Running the E3PA gateway server
 E3PA can be run from a shell script or can be run from a Docker image. Both methods are describe below.
 
 To start the E3PA server extract the `apagateway_dist.tar.gz` file created after you ran the Gradle build and go to the `package` directory. Run the `gateway.sh` with the `--server` option to start the server. There are many command line options available:
+
+`gateway.sh --server <command-line options>`
+
+TREP options
+
+`-a 	--adhuser	ADH user id`
+
+`-i 	--serviceid	TREP service id to advertise`
+
+`-y 	--service	TREP service name to advertise`
+
+`-f	--fixdictionary	FIX dictionary file`
+
+`-x	--fixenums	FIX enums`
+
+`-q	--postdictionary	OMM Post dictionary`
+
+`-w	--postenums	OMM Post enums`
+
+FIX options
+
+`-s 	--sender	FIX sender comp ID`
+
+`-t 	--target		FIX target comp ID`
+
+`-e 	--fixaddress	Remote APA FIX host/ip`
+
+`-g 	--fixport	Remote APA FIX port`
+
+`-k 	--version	FIX version (typically FIXT.1.1 for APA)`
+
+`-st 	--start time	FIX connection start time (hh:mm:ss)`
+
+`-et 	--end time	FIX connection end time (hh:mm:ss)`
+
+`-j 	--heartbeat	FIX heartbeat interval, default: 30 seconds`
+
+Logging/Config options
+
+`-R 	--rulesfile	path to transformation rules file`
+
+`-fl 	--filelog	FIX file log path`
+
+`-z 	--json		JSON log path`
 
 
