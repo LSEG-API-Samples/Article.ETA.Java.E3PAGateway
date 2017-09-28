@@ -6,7 +6,7 @@ The E3PA Gateway connects to APAs via the FIX protocol using the QuickFIX/J engi
 
 In many cases, data subject to pre-trade reporting obligations is already available via TREP in the form of MarketPrice updates which are shared via OMM posts. The E3PA Gateway will act as an additional endpoint for OMM post messages, and convert them to FIX format using a simple transformation directive and forward them to the configured APA for processing.
 
-More information is available from the [E3PAGateway article](https://developers.thomsonreuters.com/articles-samples) on the [Thomson Reuters Developer Portal](https://developers.thomsonreuters.com).
+More information is available from the [E3PAGateway article](https://developers.thomsonreuters.com/article/mifid-ii-enterprise-pre-post-trade-publication-apas-e3pa) on the [Thomson Reuters Developer Portal](https://developers.thomsonreuters.com).
 
 ## Preqrequisites
 
